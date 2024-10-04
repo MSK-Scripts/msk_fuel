@@ -23,24 +23,19 @@ local CheckResourceName = function()
 end
 
 local PrintCompatibleScripts = function()
-    local EngineToggle = {name = 'msk_enginetoggle', label = ("^3[%s]^0"):format('msk_enginetoggle')}
-
-    if (GetResourceState(EngineToggle.name) == "started") then
-        print(("%s Script %s was found and is running!"):format(NAME_COLORED, EngineToggle.label))
-    elseif (GetResourceState(EngineToggle.name) == "stopped") then
-        print(("%s Script %s was found but is stopped, please start the Script!"):format(NAME_COLORED, EngineToggle.label))
-    elseif (GetResourceState(EngineToggle.name) == "missing") then
-        print(("%s Script %s was not found, please make sure that the Script is started!"):format(NAME_COLORED, EngineToggle.label))
+    if not EngineToggle then 
+        EngineToggle = {name = 'msk_enginetoggle', label = ("^3[%s]^0"):format('msk_enginetoggle')}
     end
 
-    local VehicleKeys = {name = 'msk_vehiclekeys', label = ("^3[%s]^0"):format('msk_vehiclekeys')}
-
-    if (GetResourceState(VehicleKeys.name) == "started") then
-        print(("%s Script %s was found and is running!"):format(NAME_COLORED, VehicleKeys.label))
-    elseif (GetResourceState(VehicleKeys.name) == "stopped") then
-        print(("%s Script %s was found but is stopped, please start the Script!"):format(NAME_COLORED, VehicleKeys.label))
-    elseif (GetResourceState(VehicleKeys.name) == "missing") then
-        print(("%s Script %s was not found, please make sure that the Script is started!"):format(NAME_COLORED, VehicleKeys.label))
+    if (GetResourceState(EngineToggle.name) == "started") then
+        EngineToggle.state = "started"
+        print(("%s Script %s was found and is running!"):format(NAME_COLORED, EngineToggle.label))
+    elseif (GetResourceState(EngineToggle.name) == "stopped") then
+        EngineToggle.state = "stopped"
+        print(("%s Script %s was found but is stopped, please start the Script!"):format(NAME_COLORED, EngineToggle.label))
+    elseif (GetResourceState(EngineToggle.name) == "missing") then
+        EngineToggle.state = "missing"
+        print(("%s Script %s was not found, please make sure that the Script is started!"):format(NAME_COLORED, EngineToggle.label))
     end
 end
 
