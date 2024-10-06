@@ -4,179 +4,132 @@ Config.Locale = 'de'
 Config.Debug = true
 Config.VersionChecker = true
 ----------------------------------------------------------------
--- Supported Frameworks: AUTO, ESX, QBCore
-Config.Framework = 'AUTO'
-----------------------------------------------------------------
 -- !!! This function is clientside AND serverside !!!
 Config.Notification = function(source, message, typ)
     if IsDuplicityVersion() then -- serverside
-        MSK.Notification(source, 'Engine', message, typ)
+        MSK.Notification(source, 'Fuel Station', message, typ, 5000)
     else -- clientside
-        MSK.Notification('Engine', message, typ)
+        MSK.Notification('Fuel Station', message, typ, 5000)
     end
 end
 ----------------------------------------------------------------
-Config.Command = {
-    enable = true, -- If you set to false then the Hotkey won't work !!!
-    command = 'engine'
+Config.Target = {
+    enable = true,
+
+    -- Supported Target: ox_target
+    script = 'ox_target',
 }
 
-Config.Hotkey = {
-    enable = true, -- Set false if you don't want to use a Hotkey
-    key = 'M'
+Config.Commands = {
+    allowedGroups = {'superadmin', 'admin'},
+    setVehicleFuel = 'setFuel', -- /setFuel 50 // You have to sit in a vehicle
 }
 
-Config.AdminCommand = {
-    enable = true, -- Start/Stop Engine if you don't have a key for that vehicle
-    command = 'adengine',
-    groups = {'superadmin', 'admin'}
+Config.FuelStationBlips = {
+    enable = true, -- Set false to disable blips
+
+    id = 361,
+    color = 6,
+    scale = 0.8,
+    label = Translate('fuel_station_blip'),
 }
 
-Config.EngineOnAtEnter = false -- Set to true to toggle the engine automatically on when entering a vehicle
+-- See FiveM Native Reference (SetFuelConsumptionRateMultiplier - https://docs.fivem.net/natives/?_0x845F3E5C)
+Config.FuelConsumptionRateMultiplier = 10.0 -- Sets fuel consumption rate multiplier for all vehicles operated by a player.
 
--- Set to true to start the engine from the second seat (Co-Driver)
--- Someone has to be on the Driver Seat, otherwise it won't work!
--- If VehicleKeys is activated, the Co-Driver needs a key.
-Config.EngineFromSecondSeat = false
-----------------------------------------------------------------
--- Vehicle Key System - set true then only the Owner of the Vehicle or someone with a Key can start the Engine
+Config.Refill = {
+    tick = 250, -- Fuel Tick Rate (every 250 miliseconds)
+    value = 0.50, -- Fuel Refill Value (adds 0.50% every refillTick miliseconds)
+    price = 5, -- Price per Tick Rate (costs $5 every 250 miliseconds)
+}
 
--- msk_vehiclekeys: https://forum.cfx.re/t/esx-qbcore-msk-vehiclekeys-unique-items/5264475
--- vehicles_keys: https://forum.cfx.re/t/esx-qbcore-vehicles-keys-vehicles-lock-remote-control-ui-and-much-more/4857274
--- VehicleKeyChain: https://forum.cfx.re/t/release-vehicle-key-chain-v4-1-4-esx-qb/3319563
-
-Config.VehicleKeys = {
-    enable = true, -- Set true to enable this feature
-
-    -- Supported Scripts: 'msk_vehiclekeys', 'VehicleKeyChain', 'vehicles_keys', 'okokGarage', 'wasabi_carlock', 'qs-vehiclekeys'
-    script = 'msk_vehiclekeys',
-
-    -- This is for inventories with metadata like ox_inventory
-    -- Supported Inventories: ox_inventory, qs-inventory, core_inventory
-    -- For okokGarage you have to set this to true!
-    uniqueItems = false, -- If set to true, it will search for the item in the inventory
-    item = 'keys', -- Item in your inventory for vehicle keys
+Config.Petrolcan = {
+    enable = true,
+    price = 1000,
+    refillPrice = 800,
+    refillDuration = 5, -- duration to refill the petrolcan // in seconds
+    durabilityTick = 1.3, -- durability loss per Fuel Tick Rate
 }
 ----------------------------------------------------------------
-Config.SaveSteeringAngle = true
-Config.SaveAngleOnExit = 75 -- default: F - 75 (Exit Vehicle)
-----------------------------------------------------------------
--- With this feature you can set vehicles and plates for which you don't need a key to start the engine
--- either exact plates or just a string that should be in the vehicles plate e.g. "ESX" will ignore te plate "ESX1234" too
-Config.Whitelist = {
-    vehicles = {
-        -- Please use `` and NOT '' or ""
-        `caddy`, `caddy2`, `caddy3`, `airtug`, `docktug`, `forklift`, `mower`, `tractor2`, 
-    },
-    plates = {
-        "ESX", "MSK", "Test"
-    },
+Config.FuelStationModels = {
+    -- Use `` and NOT "" and NOT ''
+
+    `prop_gas_pump_old2`,
+	`prop_gas_pump_1a`,
+	`prop_vintage_pump`,
+	`prop_gas_pump_old3`,
+	`prop_gas_pump_1c`,
+	`prop_gas_pump_1b`,
+	`prop_gas_pump_1d`,
+}
+
+Config.DefaultFuelType = 'gas'
+
+Config.WrongFuel = {
+    allow = true, -- Allow players to fill up with the wrong fuel
+    liter = 15, -- Engine Failure if more than 15 liters were refueled
+}
+
+Config.FuelStationTypes = {
+    -- Use `` and NOT "" and NOT ''
+
+    --[[
+        Fuel Types:
+        * 'gas'
+        * 'diesel'
+        * 'kerosin' -> For airplanes and helicopters
+        * 'electric' -> For electric vehicles
+    ]]
+
+    [`prop_gas_pump_old2`] = {'gas', 'diesel', 'kerosin'},
+    [`prop_gas_pump_1a`] = {'gas', 'diesel', 'kerosin'},
+    [`prop_vintage_pump`] = {'gas', 'diesel', 'kerosin'},
+    [`prop_gas_pump_old3`] = {'gas', 'diesel', 'kerosin'},
+    [`prop_gas_pump_1c`] = {'gas', 'diesel', 'kerosin'},
+    [`prop_gas_pump_1b`] = {'gas', 'diesel', 'kerosin'},
+    [`prop_gas_pump_1d`] = {'gas', 'diesel', 'kerosin'},
+
+    -- If you have a custom fuel station for electric vehicles then add them here
+    -- [`model`] = {'electric'}
+}
+
+-- Spawns the given Fuel Pump on the given coords
+Config.CustomFuelStations = {
+    {model = `prop_gas_pump_1c`, coords = vector4(166.44, 6461.82, 31.2, 176.24)},
 }
 ----------------------------------------------------------------
-Config.EnableLockpick = true -- Set false if you want to deactivate this feature
+-- This is only for Blips
+Config.FuelStations = {
+    -- Los Santos
+    vector3(-71.28, -1761.16, 29.48),
+    vector3(264.74, -1260.98, 29.18),
+    vector3(1208.66, -1402.64, 35.22),
+    vector3(818.83, -1029.89, 26.17),
+    vector3(1181.27, -329.57, 69.18),
+    vector3(621.07, 269.52, 103.0),
+    vector3(-1437.58, -276.38, 46.21),
+    vector3(-2096.6, -318.15, 13.02),
+    vector3(-1799.03, 803.11, 138.4),
+    vector3(-524.84, -1211.02, 18.18),
+    vector3(2581.56, 361.65, 108.46),
+    vector3(-319.84, -1471.77, 30.55),
+    vector3(175.31, -1561.73, 29.26),
+    vector3(-723.72, -935.51, 19.21),
 
-Config.progressBar = function(time, message)
-    MSK.Progressbar(time, message)
-end
+    -- Blaine County
+    vector3(-2555.31, 2334.01, 33.06),
+    vector3(49.69, 2778.33, 57.88),
+    vector3(264.15, 2607.05, 44.95),
+    vector3(1207.56, 2660.2, 37.81),
+    vector3(2538.0, 2593.83, 37.94),
+    vector3(2680.01, 3265.0, 55.24),
+    vector3(2005.07, 3774.33, 32.18),
+    vector3(1688.42, 4930.85, 42.08),
+    vector3(1039.34, 2671.78, 39.55),
+    vector3(1785.58, 3330.47, 41.38),
 
-Config.LockpickHotkey = {
-    enable = false, -- Set to true if you want to use a Hotkey
-    command = 'lockpickvehicle',
-    key = 'N'
-}
-
-Config.PoliceAlert = {'police', 'sheriff', 'fib'}
-
-Config.SafetyStages = {
-    -- Do NOT rename the stages! Only change the options!
-    -- On deafult 'stage_1' is installed on every owned vehicle
-
-    ['stage_1'] = {
-        item = 'vehicle_alarm_1', -- Usable Item to set the stage to the vehicle
-        alarm = true, -- Acustic alarm
-        ownerAlert = false, -- Notify Owner
-        policeAlert = false, -- Notify Police
-        liveCoords = false, -- Owner gets live coords (Blip)
-    },
-    ['stage_2'] = {
-        item = 'vehicle_alarm_2', -- Usable Item to set the stage to the vehicle
-        alarm = true, -- Acustic alarm
-        ownerAlert = true, -- Notify Owner
-        policeAlert = false, -- Notify Police
-        liveCoords = false, -- Owner gets live coords (Blip)
-    },
-    ['stage_3'] = {
-        item = 'vehicle_alarm_3', -- Usable Item to set the stage to the vehicle
-        alarm = true, -- Acustic alarm
-        ownerAlert = true, -- Notify Owner
-        policeAlert = true, -- Notify Police
-        liveCoords = false, -- Owner gets live coords (Blip)
-    },
-    ['stage_4'] = {
-        item = 'vehicle_alarm_4', -- Usable Item to set the stage to the vehicle
-        alarm = true, -- Acustic alarm
-        ownerAlert = true, -- Notify Owner
-        policeAlert = true, -- Notify Police
-        liveCoords = true, -- Owner gets live coords (Blip)
-    },
-}
-
-Config.LockpickSettings = {
-    item = 'lockpick', -- Set the usable item that you want to use
-    removeItem = true, -- Set true if you like to remove item after failing lockpicking
-
-    startEngine = true, -- Set true if you want to start the engine after successfull lockpicking
-    startEngineBypass = false, -- Set true if you want to start the engine always even if the player hasn't found the key
-
-    -- If you set to 'skillbar' then there won't be a progressbar'
-    -- If you set to 'progressbar' then there won't be a skillbar
-    action = 'skillbar', -- Set to 'skillbar' or 'progressbar'
-
-    -- If Config.VehicleKeys is activated then the player is always searching for the key
-    enableSearchKey = true, -- Set false if you dont want this
-    searchKey = 66 -- default: 66% // Probability to find the key
-}
-
-Config.LockpickProgessbar = {
-    time = 10, -- In seconds // Time how long does it takes
-    lockpick = 66, -- default: 66% // Probability successfully lockpick the vehicle
-}
-
-Config.LockpickSkillbar = {
-    type = 'ox_lib', -- 'ox_lib' or 'qb-skillbar'
-
-    -- This is only if you set to 'ox_lib'
-    inputs = {'w', 'a', 's', 'd'},
-    difficulty = {
-        -- Presets:
-        -- 'easy' -> { areaSize: 50, speedMultiplier: 1 }
-        -- 'medium' -> { areaSize: 40, speedMultiplier: 1.5 }
-        -- 'hard' -> { areaSize: 25, speedMultiplier: 1.75 }
-        -- You can also use your own type:
-        -- Example: {areaSize = 60, speedMultiplier = 1}
-
-        ['1'] = 'easy', -- 'easy', 'medium', 'hard'
-        ['2'] = 'easy', -- 'easy', 'medium', 'hard'
-        ['3'] = {areaSize = 60, speedMultiplier = 1}, -- 'easy', 'medium', 'hard'
-        ['4'] = 'easy', -- 'easy', 'medium', 'hard'
-    }
-}
-
-Config.Animation = {
-    lockpick = { -- Animation for lockpicking
-        dict = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@',
-        anim = 'machinic_loop_mechandplayer'
-    },  
-    searchKey = { -- Animation for search key
-        dict = 'veh@plane@velum@front@ds@base',
-        anim = 'hotwire',
-        time = 8, -- in seconds // How long does it take to search for the key
-        enableProgressbar = true
-    },
-    hotwire = { -- Animation for hotwire
-        dict = 'veh@forklift@base',
-        anim = 'hotwire',
-        action = 'skillbar', -- Set to 'skillbar' or 'progressbar'
-        time = 15, -- in seconds // How long does it take to hotwire the vehicle // Only for 'progressbar'
-    }
+    -- Paleto Bay
+    vector3(1702.79, 6416.86, 33.64),
+    vector3(179.94, 6602.6, 31.85),
+    vector3(-93.98, 6420.1, 31.48),
 }

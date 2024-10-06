@@ -10,9 +10,9 @@ lua54 'yes'
 
 shared_script {
 	'@msk_core/import.lua',
-	'@ox_lib/init.lua',
+	'translation.lua',
     'config.lua',
-	'translation.lua'
+	'config.vehicles.lua',
 }
 
 client_scripts {
@@ -24,6 +24,7 @@ server_scripts {
 }
 
 dependencies {
-	'ox_lib',
 	'msk_core',
+	'ox_target',
+	'ox_inventory',
 }
