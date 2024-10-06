@@ -261,7 +261,7 @@ SetEngineFailure = function(vehicle)
     SetVehicleEngineHealth(vehicle, engineHealth)
     SetVehicleEngineOn(vehicle, false, true, true)
 
-    if GetResourceState('msk_enginetoggle') == 'started' then
+    if (GetResourceState('msk_enginetoggle') == 'started') then
         exports.msk_enginetoggle:SetVehicleDamaged(vehicle, true)
     end
 end
@@ -274,11 +274,23 @@ SetEngineRepaired = function(vehicle)
     State.Vehicle.Set(vehicle, 'isFuelingTypeValue', nil)
     State.Vehicle.Set(vehicle, 'engineFailure', false)
 
-    if GetResourceState('msk_enginetoggle') == 'started' then
+    if (GetResourceState('msk_enginetoggle') == 'started') then
         exports.msk_enginetoggle:SetVehicleDamaged(vehicle, false)
     end
 end
 exports('SetEngineRepaired', SetEngineRepaired)
+
+OverrideEngine = function(vehicle)
+    if not DoesEntityExist(vehicle) then return end
+    if not State.Vehicle.Get(vehicle, 'engineFailure') then return end
+
+    SetVehicleEngineHealth(vehicle, 50)
+    SetVehicleEngineOn(vehicle, false, true, true)
+
+    if (GetResourceState('msk_enginetoggle') == 'started') then
+        exports.msk_enginetoggle:SetVehicleDamaged(vehicle, true)
+    end
+end
 
 logging = function(code, ...)
     if not Config.Debug and code == 'debug' then return end

@@ -22,6 +22,12 @@ SetVehicleFuel = function(netId, fuel)
     fuel = tonumber(fuel) + 0.0
 
     Entity(vehicle).state:set('fuel', fuel, true)
+
+    local entityOwner = NetworkGetEntityOwner(vehicle)
+    
+    if entityOwner then
+        TriggerClientEvent('msk_fuel:setVehicleFuel', entityOwner, netId, fuel)
+    end
 end
 exports('SetVehicleFuel', SetVehicleFuel)
 

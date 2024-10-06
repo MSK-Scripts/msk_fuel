@@ -63,6 +63,10 @@ CalculateVehicleFuel = function(vehicle)
 			CreateThread(function()
 				SetEngineFailure(vehicle)
 			end)
+		elseif State.Vehicle.Get(vehicle, 'engineFailure') and State.Vehicle.Get(vehicle, 'isFuelingType') and GetIsVehicleEngineRunning(vehicle) then
+			CreateThread(function()
+				OverrideEngine(vehicle)
+			end)
 		end
 
 		Wait(1000)
@@ -76,6 +80,40 @@ if MSK.Player.seat == -1 then
 		CalculateVehicleFuel(MSK.Player.vehicle)
 	end)
 end
+
+CreateThread(function()
+	while true do
+		local sleep = 500
+		local fuelingCoords = State.Player.Get('fuelingCoords')
+		
+		if fuelingCoords then
+			local playerDist = #(fuelingCoords - GetEntityCoords(MSK.Player.playerPed))
+
+			if playerDist >= 20.0 then
+				Fuel.StopFueling()
+				Fuel.DetachRopeFromPlayer()
+			end
+
+			local fuelingVehicle = State.Player.Get('vehicle')
+
+			if fuelingVehicle then
+				if DoesEntityExist(fuelingVehicle) then
+					local vehicleDist = #(fuelingCoords - GetEntityCoords(fuelingVehicle))
+
+					if vehicleDist >= 20.0 then
+						Fuel.StopFueling()
+						Fuel.DetachRopeFromPlayer()
+					end
+				else
+					Fuel.StopFueling()
+					Fuel.DetachRopeFromPlayer()
+				end
+			end
+		end
+
+		Wait(500)
+	end
+end)
 
 AddEventHandler('msk_core:onSeatChange', function(vehicle, seat)
     if not seat or seat ~= -1 then return end

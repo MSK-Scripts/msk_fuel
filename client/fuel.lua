@@ -122,6 +122,7 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
     end
 
     State.Player.Set('vehicle', vehicle)
+    State.Player.Set('fuelingCoords', GetEntityCoords(vehicle))
     State.Vehicle.Set(vehicle, 'isFueling', true)
 
     local fuelAmount, addedFuelAmount = GetVehicleFuel(vehicle), 0
@@ -259,4 +260,5 @@ Fuel.DetachRopeFromPlayer = function()
     State.Player.Set('rope', nil)
     State.Player.Set('vehicle', nil)
     State.Player.Set('isFuelingType', nil)
+    State.Player.Set('fuelingCoords', nil)
 end
