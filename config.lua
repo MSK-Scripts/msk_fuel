@@ -13,16 +13,10 @@ Config.Notification = function(source, message, typ)
     end
 end
 ----------------------------------------------------------------
-Config.Target = {
-    enable = true,
-
-    -- Supported Target: ox_target
-    script = 'ox_target',
-}
-
 Config.Commands = {
     allowedGroups = {'superadmin', 'admin'},
     setVehicleFuel = 'setFuel', -- /setFuel 50 // You have to sit in a vehicle
+    repairVehicle = 'repairVehicle', -- Repair the vehicle if it was refueled with the wrong fuel // You have to sit in a vehicle
 }
 
 Config.FuelStationBlips = {
@@ -67,7 +61,7 @@ Config.DefaultFuelType = 'gas'
 
 Config.WrongFuel = {
     allow = true, -- Allow players to fill up with the wrong fuel
-    liter = 15, -- Engine Failure if more than 15 liters were refueled
+    liter = 15, -- Engine Failure if more than 15 liters were refueled with the wrong fuel
 }
 
 Config.FuelStationTypes = {

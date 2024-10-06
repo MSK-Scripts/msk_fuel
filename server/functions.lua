@@ -1,7 +1,3 @@
-isPlayerAllowed = function(source, command)
-    return IsPlayerAceAllowed(source, ('command.%s'):format(command))
-end
-
 GetPlayerMoney = function(playerId)
     return exports.ox_inventory:GetItemCount(playerId, 'money')
 end
@@ -24,7 +20,7 @@ SetVehicleFuel = function(netId, fuel)
     Entity(vehicle).state:set('fuel', fuel, true)
 
     local entityOwner = NetworkGetEntityOwner(vehicle)
-    
+
     if entityOwner then
         TriggerClientEvent('msk_fuel:setVehicleFuel', entityOwner, netId, fuel)
     end

@@ -127,6 +127,13 @@ RegisterNetEvent('msk_fuel:setVehicleFuel', function(netId, fuel)
     SetVehicleFuel(vehicle, fuel)
 end)
 
+RegisterNetEvent('msk_fuel:setVehicleRepaired', function(netId, fuel)
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if not DoesEntityExist(vehicle) then return end
+
+    SetEngineRepaired(vehicle)
+end)
+
 AddEventHandler('onResourceStop', function(resource)
     if resource ~= GetCurrentResourceName() then return end
     Fuel.DetachRopeFromPlayer()
