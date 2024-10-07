@@ -95,13 +95,20 @@ Config.FuelStationTypes = {
     [`tanker`] = {'gas', 'diesel', 'kerosin'},
     [`tanker2`] = {'gas', 'diesel', 'kerosin'},
 
-    -- Models
-    [`prop_ind_deiseltank`] = {'gas', 'diesel', 'kerosin'},
-    [`prop_tanktrailer_01a`] = {'gas', 'diesel', 'kerosin'},
-    [`prop_air_fueltrail1`] = {'gas', 'diesel', 'kerosin'},
-    [`prop_air_fueltrail2`] = {'gas', 'diesel', 'kerosin'},
+    -- Models: Fuel Tanks
+    [`prop_ind_deiseltank`] = {'kerosin'},
+    [`prop_tanktrailer_01a`] = {'kerosin'},
+    [`prop_air_fueltrail1`] = {'kerosin'},
+    [`prop_air_fueltrail2`] = {'kerosin'},
 
-    -- Models Electric
+    -- Models: Gas Tanks
+    [`prop_gas_tank_01a`] = {'kerosin'},
+    [`prop_gas_tank_02a`] = {'kerosin'},
+    [`prop_gas_tank_02b`] = {'kerosin'},
+    [`prop_gas_tank_04a`] = {'kerosin'},
+    [`sf_prop_sf_gas_tank_01a`] = {'kerosin'},
+
+    -- Models: Electric Generator
     [`prop_generator_01a`] = {'electric'},
     [`prop_generator_02a`] = {'electric'},
     [`prop_generator_03a`] = {'electric'},
@@ -117,10 +124,13 @@ Config.FuelStationTypes = {
 
 -- Spawns the given Fuel Pump on the given coords
 Config.CustomFuelStations = {
-    {model = `prop_gas_pump_1c`, coords = vector4(166.44, 6461.82, 31.2, 176.24), showBlip = true},
-    
-    {model = `prop_ind_deiseltank`, coords = vector4(1761.61, 3228.0, 42.52, 232.38), showBlip = false},
-    {model = `prop_generator_01a`, coords = vector4(1787.35, 3327.75, 41.4, 303.47), showBlip = false},
+    {model = `prop_gas_pump_1c`, coords = vector4(166.44, 6461.82, 31.2, 176.24), showBlip = false}, -- Paleto Bay near 3021
+
+    {model = `prop_ind_deiseltank`, coords = vector4(1761.61, 3228.0, 42.52, 232.38), showBlip = true}, -- Grand Senora Desert
+    {model = `prop_generator_01a`, coords = vector4(1787.35, 3327.75, 41.4, 303.47), showBlip = false}, -- Grand Senora Desert
+
+    {model = `prop_ind_deiseltank`, coords = vector4(-973.09, -3411.08, 13.84, 237.21), showBlip = true}, -- LS International Airport
+    {model = `prop_ind_deiseltank`, coords = vector4(-1017.03, -3385.64, 13.84, 237.21), showBlip = true}, -- LS International Airport
 }
 ----------------------------------------------------------------
 -- Vehicle that acts as a fuel station
@@ -138,12 +148,20 @@ Config.FuelVehicles = {
 Config.FuelModels = {
     -- Use `` and NOT "" and NOT ''
 
+    -- Fuel Tanks
     `prop_ind_deiseltank`, -- https://forge.plebmasters.de/objects/prop_ind_deiseltank
     `prop_tanktrailer_01a`, -- https://forge.plebmasters.de/objects/prop_tanktrailer_01a
     `prop_air_fueltrail1`, -- https://forge.plebmasters.de/objects/prop_air_fueltrail1
     `prop_air_fueltrail2`, -- https://forge.plebmasters.de/objects/prop_air_fueltrail2
 
-    -- Electric Models
+    -- Gas Tanks
+    `prop_gas_tank_01a`, -- https://forge.plebmasters.de/objects/prop_gas_tank_01a
+    `prop_gas_tank_02a`, -- https://forge.plebmasters.de/objects/prop_gas_tank_02a
+    `prop_gas_tank_02b`, -- https://forge.plebmasters.de/objects/prop_gas_tank_02b
+    `prop_gas_tank_04a`, -- https://forge.plebmasters.de/objects/prop_gas_tank_04a
+    `sf_prop_sf_gas_tank_01a`, -- https://forge.plebmasters.de/objects/sf_prop_sf_gas_tank_01a
+
+    -- Electric Generators
     `prop_generator_01a`, -- https://forge.plebmasters.de/objects/prop_generator_01a
     `prop_generator_02a`, -- https://forge.plebmasters.de/objects/prop_generator_02a
     `prop_generator_03a`, -- https://forge.plebmasters.de/objects/prop_generator_03a

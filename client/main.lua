@@ -101,26 +101,81 @@ CreateThread(function()
 		
 		if fuelingCoords then
 			local playerDist = #(fuelingCoords - GetEntityCoords(MSK.Player.playerPed))
-
-			if playerDist >= 20.0 then
-				Fuel.StopFueling()
-				Fuel.DetachRopeFromPlayer()
-			end
+			local maxDist = 20.0
 
 			local fuelingVehicle = State.Player.Get('vehicle')
 
-			if fuelingVehicle then
-				if DoesEntityExist(fuelingVehicle) then
-					local vehicleDist = #(fuelingCoords - GetEntityCoords(fuelingVehicle))
+			if fuelingVehicle and DoesEntityExist(fuelingVehicle) then
+				local model = GetEntityModel(fuelingVehicle)
 
-					if vehicleDist >= 20.0 then
-						Fuel.StopFueling()
-						Fuel.DetachRopeFromPlayer()
-					end
-				else
+				if IsThisModelAHeli(model) then
+					maxDist = 30.0
+				end
+
+				if IsThisModelAPlane(model) then
+					maxDist = 50.0
+				end
+			end
+
+			if playerDist >= maxDist then
+				Config.Notification(nil, Translate('too_far_away_from_vehicle'), 'error')
+				Fuel.StopFueling()
+				Fuel.DetachRopeFromPlayer()
+			end
+		end
+
+		local nozzleCoords = State.Player.Get('nozzleCoords')
+
+		if nozzleCoords then
+			local playerDist = #(nozzleCoords - GetEntityCoords(MSK.Player.playerPed))
+			local maxDist = 20.0
+
+			local fuelingVehicle = State.Player.Get('vehicle')
+			
+			if fuelingVehicle and DoesEntityExist(fuelingVehicle) then
+				local model = GetEntityModel(fuelingVehicle)
+
+				if IsThisModelAHeli(model) then
+					maxDist = 30.0
+				end
+
+				if IsThisModelAPlane(model) then
+					maxDist = 50.0
+				end
+			end
+
+			if playerDist >= maxDist then
+				Config.Notification(nil, Translate('too_far_away_from_station'), 'error')
+				Fuel.StopFueling()
+				Fuel.DetachRopeFromPlayer()
+			end
+		end
+
+		local fuelingVehicle = State.Player.Get('vehicle')
+
+		if fuelingVehicle then
+			if DoesEntityExist(fuelingVehicle) then
+				local model = GetEntityModel(fuelingVehicle)
+				local vehicleDist = #(fuelingCoords - GetEntityCoords(fuelingVehicle))
+				local maxDist = 20.0
+
+				if IsThisModelAHeli(model) then
+					maxDist = 30.0
+				end
+
+				if IsThisModelAPlane(model) then
+					maxDist = 50.0
+				end
+
+				if vehicleDist >= maxDist then
+					Config.Notification(nil, Translate('vehicle_too_far_away_from_station'), 'error')
 					Fuel.StopFueling()
 					Fuel.DetachRopeFromPlayer()
 				end
+			else
+				Config.Notification(nil, Translate('vehicle_does_not_exist'), 'error')
+				Fuel.StopFueling()
+				Fuel.DetachRopeFromPlayer()
 			end
 		end
 

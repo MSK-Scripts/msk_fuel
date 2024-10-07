@@ -228,6 +228,7 @@ registerTargetFuelStations = function()
 		})
     end
 
+    -- If the nozzle is attached to a player to return it to fuel station
     options[#options + 1] = {
         name = 'cancel_fueling',
         label = Translate('return_nozzle'),
@@ -251,19 +252,23 @@ registerTargetFuelStations = function()
 
     exports.ox_target:addModel(Config.FuelStationModels, options)
 
-    -- If player has a nozzle in his hand
+    -- If the nozzle is attached to a player
     exports.ox_target:addGlobalVehicle({
         name = 'nozzle_fuel_vehicle',
         label = Translate('fuel_vehicle'),
         icon = 'fas fa-faucet',
-        distance = 2.0,
-        bones = {'petrolcap', 'petroltank', 'petroltank_l', 'engine', 'hub_lr', 'handle_dside_r'},
+        distance = 2.5,
+        -- bones = {'petrolcap', 'petroltank', 'petroltank_l', 'engine', 'hub_lr', 'handle_dside_r', 'wing_l', 'wing_r'},
         canInteract = function(entity)
             if not State.Player.Get('nozzle') or not State.Player.Get('rope') then
                 return false
             end
 
             if not State.Player.Get('nozzleAttached') then
+                return false
+            end
+
+            if State.Vehicle.Get(entity, 'nozzleAttached') then
                 return false
             end
 
@@ -274,19 +279,23 @@ registerTargetFuelStations = function()
         end
     })
 
-    -- If player has a nozzle in his hand
+    -- If the nozzle is attached to a vehicle
     exports.ox_target:addGlobalVehicle({
         name = 'return_nozzle_fuel_vehicle',
         label = Translate('take_nozzle'),
         icon = 'fas fa-faucet',
-        distance = 2.0,
-        bones = {'petrolcap', 'petroltank', 'petroltank_l', 'engine', 'hub_lr', 'handle_dside_r'},
+        distance = 2.5,
+        -- bones = {'petrolcap', 'petroltank', 'petroltank_l', 'engine', 'hub_lr', 'handle_dside_r', 'wing_l', 'wing_r'},
         canInteract = function(entity)
             if not State.Player.Get('nozzle') or not State.Player.Get('rope') then
                 return false
             end
 
-            if State.Player.Get('nozzleAttached') and not State.Vehicle.Get(entity, 'nozzleAttached') then
+            if State.Player.Get('nozzleAttached') then
+                return false
+            end
+
+            if not State.Vehicle.Get(entity, 'nozzleAttached') then
                 return false
             end
 
@@ -302,8 +311,8 @@ registerTargetFuelStations = function()
         name = 'lookup_vehicle_fuel_type',
         label = Translate('vehicle_get_fuel_type'),
         icon = 'fa-solid fa-fire-flame-simple',
-        distance = 2.0,
-        bones = {'petrolcap', 'petroltank', 'petroltank_l', 'engine', 'hub_lr', 'handle_dside_r'},
+        distance = 2.5,
+        bones = {'petrolcap', 'petroltank', 'petroltank_l', 'engine', 'hub_lr', 'handle_dside_r', 'wing_l', 'wing_r'},
         onSelect = function(data)
             local fuelType = GetVehicleFuelType(data.entity)
             Config.Notification(nil, Translate('vehicle_fuel_type', Translate(fuelType)), 'info')
@@ -318,7 +327,7 @@ registerModelFuelStations = function()
     options[#options + 1] = {
         name = 'fuel_gas',
         label = Translate('fuel_gas'),
-        distance = 10.0,
+        distance = 3.0,
         icon = 'fas fa-gas-pump',
         canInteract = function(entity)
             if State.Player.Get('nozzle') or State.Player.Get('rope') then
@@ -343,7 +352,7 @@ registerModelFuelStations = function()
     options[#options + 1] = {
         name = 'fuel_diesel',
         label = Translate('fuel_diesel'),
-        distance = 10.0,
+        distance = 3.0,
         icon = 'fas fa-gas-pump',
         canInteract = function(entity)
             if State.Player.Get('nozzle') or State.Player.Get('rope') then
@@ -368,7 +377,7 @@ registerModelFuelStations = function()
     options[#options + 1] = {
         name = 'fuel_electric',
         label = Translate('fuel_electric'),
-        distance = 10.0,
+        distance = 3.0,
         icon = 'fas fa-gas-pump',
         canInteract = function(entity)
             if State.Player.Get('nozzle') or State.Player.Get('rope') then
@@ -393,7 +402,7 @@ registerModelFuelStations = function()
     options[#options + 1] = {
         name = 'fuel_kerosin',
         label = Translate('fuel_kerosin'),
-        distance = 10.0,
+        distance = 3.0,
         icon = 'fas fa-gas-pump',
         canInteract = function(entity)
             if State.Player.Get('nozzle') or State.Player.Get('rope') then
@@ -415,10 +424,11 @@ registerModelFuelStations = function()
         end
     }
 
+    -- If the nozzle is attached to a player to return it to fuel station
     options[#options + 1] = {
         name = 'cancel_fueling',
         label = Translate('return_nozzle'),
-        distance = 10.0,
+        distance = 3.0,
         icon = 'fas fa-gas-pump',
         canInteract = function(entity)
             if not State.Player.Get('nozzle') or not State.Player.Get('rope') then

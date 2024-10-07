@@ -31,7 +31,7 @@ Fuel.GrabNozzle = function(data, fuelType)
     AttachEntitiesToRope(rope, data.entity, nozzle, data.coords.x, data.coords.y, data.coords.z + 1.45, nozzlePos.x, nozzlePos.y, nozzlePos.z, 5.0, false, false, nil, nil)
 
     State.Player.Set('nozzleAttached', true)
-    State.Player.Set('fuelingCoords', data.coords)
+    State.Player.Set('nozzleCoords', data.coords)
     State.Player.Set('isFuelingType', fuelType)
 end
 local grabNozzle = Fuel.GrabNozzle
@@ -181,13 +181,13 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
             price += Config.Refill.price
 
 			if price + Config.Refill.price >= moneyAmount then
-				Fuel.StopFueling()
+				MSK.Progress.Stop()
 			end
         elseif isPetrolcan and State.Player.Get('petrolcan') then
             durability += Config.Petrolcan.durabilityTick
 
 			if durability >= State.Player.Get('petrolcan').metadata.ammo then
-				Fuel.StopFueling()
+				MSK.Progress.Stop()
 				durability = State.Player.Get('petrolcan').metadata.ammo
 				break
 			end
@@ -202,7 +202,7 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
             State.Vehicle.Set(vehicle, 'isFuelingTypeValue', addedFuelAmount)
         end
 
-		if fuelAmount > fuelAmount + Config.Refill.value then
+		if fuelAmount >= 100.0 then
 			fuelAmount = 100.0
 			Fuel.StopFueling()
 		end
@@ -231,13 +231,13 @@ end
 
 Fuel.AttachRopeToVehicle = function(vehicle)
     local model = GetEntityModel(vehicle)
-    local boneIndex, position = GetVehicleFuelTankBoneIndex(vehicle)
-    -- local tankPosition = GetWorldPositionOfEntityBone(vehicle, boneIndex)
+    local boneIndex, bonePosition = GetVehicleFuelTankBoneIndex(vehicle)
+    -- local bonePosition = GetWorldPositionOfEntityBone(vehicle, boneIndex)
     
     if IsThisModelABike(model) then
-        AttachEntityToEntity(State.Player.Get('nozzle'), vehicle, boneIndex, 0.0 + position.x, -0.2 + position.y, 0.2 + position.z, -80.0, 0.0, 0.0, true, true, false, false, 1, true)
+        AttachEntityToEntity(State.Player.Get('nozzle'), vehicle, boneIndex, 0.0 + bonePosition.x, -0.2 + bonePosition.y, 0.2 + bonePosition.z, -80.0, 0.0, 0.0, true, true, false, false, 1, true)
     else
-        AttachEntityToEntity(State.Player.Get('nozzle'), vehicle, boneIndex, -0.18 + position.x, 0.0 + position.y, 0.75 + position.z, -125.0, -90.0, -90.0, true, true, false, false, 1, true)
+        AttachEntityToEntity(State.Player.Get('nozzle'), vehicle, boneIndex, -0.18 + bonePosition.x, 0.0 + bonePosition.y, 0.75 + bonePosition.z, -125.0, -90.0, -90.0, true, true, false, false, 1, true)
     end
 
     State.Vehicle.Set(vehicle, 'nozzleAttached', true)
@@ -270,6 +270,7 @@ Fuel.DetachRopeFromPlayer = function()
     State.Player.Set('vehicle', nil)
     State.Player.Set('isFuelingType', nil)
     State.Player.Set('fuelingCoords', nil)
+    State.Player.Set('nozzleCoords', nil)
 end
 
 exports('Fuel', function()

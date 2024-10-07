@@ -29,48 +29,74 @@ end
 exports('GetFuelTypesFromModel', GetFuelTypesFromModel)
 
 GetVehicleFuelTankBoneIndex = function(vehicle)
-    local model = GetEntityModel(vehicle)
     local class = GetVehicleClass(vehicle)
-    local fuelType = GetVehicleFuelType(vehicle)
-    local zPos = State.NozzlePositions[class + 1]
-    local modifiedPosition = {
-        x = 0.0,
-        y = 0.0,
-        z = 0.0
+    local position = {x = 0.0, y = 0.0, z = 0.0}
+    local tankBoneIndex, tankBoneName = -1, 'petrolcap'
+    local tankBones = {
+        "petrolcap",
+        "petroltank_l",
+        "hub_lr",
+        "handle_dside_r",
+        "engine",
     }
-    local tankBone
 
-    if class == 8 and class ~= 13 and fuelType ~= 'electric' then
-        tankBone = GetEntityBoneIndexByName(vehicle, "petrolcap")
+    if class == 13 then
+        return tankBoneIndex, position
+    end
 
-        if tankBone == -1 then
-            tankBone = GetEntityBoneIndexByName(vehicle, "petroltank")
-        end
+    if class == 8 then -- Motorcycles
+        tankBones = {
+            "petrolcap",
+            "petroltank",
+            "engine",
+        }
+    elseif class == 15 then -- Helicopters
+        tankBones = {
+            "petrolcap",
+            "petroltank",
+            "petroltank_l",
+            "hub_lr",
+            "handle_dside_r",
+            "engine",
+        }
 
-        if tankBone == -1 then
-            tankBone = GetEntityBoneIndexByName(vehicle, "engine")
-        end
-    elseif class ~= 13 and fuelType ~= 'electric' then
-        tankBone = GetEntityBoneIndexByName(vehicle, "petrolcap")
+        position = {x = 0.0, y = 0.0, z = -0.3}
 
-        if tankBone == -1 then
-            tankBone = GetEntityBoneIndexByName(vehicle, "petroltank_l")
-        end
+    elseif class == 16 then -- Planes
+        tankBones = {
+            "petrolcap",
+            "petroltank",
+            "petroltank_l",
+            "hub_lr",
+            "handle_dside_r",
+            "engine",
+        }
+    end
 
-        if tankBone == -1 then
-            tankBone = GetEntityBoneIndexByName(vehicle, "hub_lr")
-        end
+    for i=1, #tankBones do
+        local boneIndex = GetEntityBoneIndexByName(vehicle, tankBones[i])
 
-        if tankBone == -1 then
-            tankBone = GetEntityBoneIndexByName(vehicle, "handle_dside_r")
+        if boneIndex ~= -1 then
+            tankBoneIndex = boneIndex
+            tankBoneName = tankBones[i]
 
-            modifiedPosition.x = 0.1
-            modifiedPosition.y = -0.5
-            modifiedPosition.z = -0.6
+            if tankBoneName == "handle_dside_r" then
+                position = {x = 0.1, y = -0.5, z = -0.6}
+            end
+
+            break
         end
     end
 
-    return tankBone, modifiedPosition
+    if AdjustBonePosition then
+        local newPos = AdjustBonePosition(vehicle, tankBoneIndex, tankBoneName)
+
+        if newPos then
+            position = newPos
+        end
+    end
+
+    return tankBoneIndex, position
 end
 exports('GetVehicleFuelTankBoneIndex', GetVehicleFuelTankBoneIndex)
 
@@ -89,10 +115,6 @@ IsVehicleGas = function(vehicle)
             typeOfFuel = fuelType
             break
         end
-    end
-
-    if not typeOfFuel then
-        typeOfFuel = Config.DefaultFuelType
     end
 
     return typeOfFuel
@@ -116,10 +138,6 @@ IsVehicleDiesel = function(vehicle)
         end
     end
 
-    if not typeOfFuel then
-        typeOfFuel = Config.DefaultFuelType
-    end
-
     return typeOfFuel
 end
 exports('IsVehicleDiesel', IsVehicleDiesel)
@@ -141,10 +159,6 @@ IsVehicleKerosin = function(vehicle)
         end
     end
 
-    if not typeOfFuel then
-        typeOfFuel = Config.DefaultFuelType
-    end
-
     return typeOfFuel
 end
 exports('IsVehicleKerosin', IsVehicleKerosin)
@@ -164,10 +178,6 @@ IsVehicleElectric = function(vehicle)
             typeOfFuel = fuelType
             break
         end
-    end
-
-    if not typeOfFuel then
-        typeOfFuel = Config.DefaultFuelType
     end
 
     return typeOfFuel

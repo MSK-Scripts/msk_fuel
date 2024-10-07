@@ -14,6 +14,12 @@ Translation = {
         ['not_enough_money'] = 'Du hast nicht gennug Geld dabei!',
         ['cannot_carry_petrolcan'] = 'Du hast nicht genug Platz um den Kanister zu tragen!',
         ['petrolcan_not_enough_fuel'] = 'Dein Kanister hat nicht genug Sprit!',
+
+        -- Main Thread
+        ['vehicle_does_not_exist'] = 'Das Fahrzeug existiert nicht mehr, tanken wurde abgebrochen.',
+        ['vehicle_too_far_away_from_station'] = 'Das Fahrzeug ist zu weit von der Zapfsäule entfernt, tanken wurde abgebrochen.',
+        ['too_far_away_from_vehicle'] = 'Du bist zu weit vom Fahrzeug entfernt, tanken wurde abgebrochen.',
+        ['too_far_away_from_station'] = 'Du bist zu weit von der Zapfsäule entfernt, tanken wurde abgebrochen.',
         
         -- Vehicle
         ['vehicle_get_fuel_type'] = 'Prüfe Spritart',
@@ -53,6 +59,12 @@ Translation = {
         ['not_enough_money'] = 'Du hast nicht gennug Geld dabei!',
         ['cannot_carry_petrolcan'] = 'Du hast nicht genug Platz um den Kanister zu tragen!',
         ['petrolcan_not_enough_fuel'] = 'Dein Kanister hat nicht genug Sprit!',
+
+        -- Main Thread
+        ['vehicle_does_not_exist'] = 'Das Fahrzeug existiert nicht mehr, tanken wurde abgebrochen.',
+        ['vehicle_too_far_away_from_station'] = 'Das Fahrzeug ist zu weit von der Zapfsäule entfernt, tanken wurde abgebrochen.',
+        ['too_far_away_from_vehicle'] = 'Du bist zu weit vom Fahrzeug entfernt, tanken wurde abgebrochen.',
+        ['too_far_away_from_station'] = 'Du bist zu weit von der Zapfsäule entfernt, tanken wurde abgebrochen.',
         
         -- Vehicle
         ['vehicle_get_fuel_type'] = 'Prüfe Spritart',
