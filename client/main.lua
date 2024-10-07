@@ -13,11 +13,24 @@ if Config.FuelStationBlips.enable then
 			BeginTextCommandSetBlipName('msk_fuel_station')
 			EndTextCommandSetBlipName(blip)
 		end
+
+		for k, v in pairs(Config.CustomFuelStations) do
+			if v.showBlip then
+				local blip = AddBlipForCoord(v.coords.x, v.coords.y, v.coords.z)
+	
+				SetBlipSprite(blip, Config.FuelStationBlips.id)
+				SetBlipDisplay(blip, 4)
+				SetBlipScale(blip, Config.FuelStationBlips.scale)
+				SetBlipColour(blip, Config.FuelStationBlips.color)
+				SetBlipAsShortRange(blip, true)
+				BeginTextCommandSetBlipName('msk_fuel_station')
+				EndTextCommandSetBlipName(blip)
+			end
+		end
 	end)
 
 	CreateThread(function()
 		while not State?.FuelStation?.Add do
-			print('Waiting for State.FuelStation.Add')
 			Wait(10)
 		end
 

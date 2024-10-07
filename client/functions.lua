@@ -2,6 +2,32 @@ GetPlayerMoney = function()
     return exports.ox_inventory:GetItemCount('money')
 end
 
+IsFuelTypeAtFuelStation = function(entity, fuelType)
+    local pumpModel = GetEntityModel(entity)
+
+    if not Config.FuelStationTypes[pumpModel] then
+        return false
+    end
+
+    if not MSK.Table.Contains(Config.FuelStationTypes[pumpModel], fuelType) then
+        return false
+    end
+
+    return true
+end
+exports('IsFuelTypeAtFuelStation', IsFuelTypeAtFuelStation)
+
+GetFuelTypesFromModel = function(entity)
+    local pumpModel = GetEntityModel(entity)
+
+    if not Config.FuelStationTypes[pumpModel] then
+        return false
+    end
+
+    return Config.FuelStationTypes[pumpModel]
+end
+exports('GetFuelTypesFromModel', GetFuelTypesFromModel)
+
 GetVehicleFuelTankBoneIndex = function(vehicle)
     local model = GetEntityModel(vehicle)
     local class = GetVehicleClass(vehicle)
@@ -46,6 +72,7 @@ GetVehicleFuelTankBoneIndex = function(vehicle)
 
     return tankBone, modifiedPosition
 end
+exports('GetVehicleFuelTankBoneIndex', GetVehicleFuelTankBoneIndex)
 
 IsVehicleGas = function(vehicle)
     local fuelType = State.Vehicle.Get(vehicle, 'fuelType')
@@ -70,6 +97,7 @@ IsVehicleGas = function(vehicle)
 
     return typeOfFuel
 end
+exports('IsVehicleGas', IsVehicleGas)
 
 IsVehicleDiesel = function(vehicle)
     local fuelType = State.Vehicle.Get(vehicle, 'fuelType')
@@ -94,6 +122,7 @@ IsVehicleDiesel = function(vehicle)
 
     return typeOfFuel
 end
+exports('IsVehicleDiesel', IsVehicleDiesel)
 
 IsVehicleKerosin = function(vehicle)
     local fuelType = State.Vehicle.Get(vehicle, 'fuelType')
@@ -118,6 +147,7 @@ IsVehicleKerosin = function(vehicle)
 
     return typeOfFuel
 end
+exports('IsVehicleKerosin', IsVehicleKerosin)
 
 IsVehicleElectric = function(vehicle)
     local fuelType = State.Vehicle.Get(vehicle, 'fuelType')
@@ -142,6 +172,7 @@ IsVehicleElectric = function(vehicle)
 
     return typeOfFuel
 end
+exports('IsVehicleElectric', IsVehicleElectric)
 
 CalculateFuelType = function(vehicle)    
     if IsVehicleGas(vehicle) then
@@ -291,6 +322,7 @@ OverrideEngine = function(vehicle)
         exports.msk_enginetoggle:SetVehicleDamaged(vehicle, true)
     end
 end
+exports('OverrideEngine', OverrideEngine)
 
 logging = function(code, ...)
     if not Config.Debug and code == 'debug' then return end

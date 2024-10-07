@@ -1,6 +1,6 @@
 Fuel = {}
 
-local grabNozzle = function(data)
+Fuel.GrabNozzle = function(data, fuelType)
     local playerPed = MSK.Player.playerPed
 
     MSK.Request.AnimDict("anim@am_hold_up@male")
@@ -31,7 +31,10 @@ local grabNozzle = function(data)
     AttachEntitiesToRope(rope, data.entity, nozzle, data.coords.x, data.coords.y, data.coords.z + 1.45, nozzlePos.x, nozzlePos.y, nozzlePos.z, 5.0, false, false, nil, nil)
 
     State.Player.Set('nozzleAttached', true)
+    State.Player.Set('fuelingCoords', data.coords)
+    State.Player.Set('isFuelingType', fuelType)
 end
+local grabNozzle = Fuel.GrabNozzle
 
 Fuel.Vehicle = function(vehicle, fuelType, isPetrolcan, data)
     if State.Vehicle.Get(vehicle, 'isFueling') then return end
@@ -107,13 +110,15 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
     local vehFuelType = GetVehicleFuelType(vehicle)
 
     if vehFuelType ~= fuelType then
-        local isElectro = vehFuelType == 'electric'
+        logging('debug', 'Fueling Type does not match')
+        local isElectric = vehFuelType == 'electric'
+        logging('debug', 'Fueling Type', fuelType, vehFuelType, isElectric)
 
-        if isElectro then
-            return Config.Notification(nil, Translate('fuel_electro_not_compatible'), 'error')
+        if isElectric then
+            return Config.Notification(nil, Translate('fuel_electric_not_compatible'), 'error')
         end
 
-        if not isElectro and fuelType == 'electric' then
+        if not isElectric and fuelType == 'electric' then
             return Config.Notification(nil, Translate('fuel_not_compatible'), 'error')
         end
 
@@ -130,6 +135,10 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
     
     if not duration then
         duration = math.ceil((100 - fuelAmount) / Config.Refill.value) * Config.Refill.tick
+    end
+
+    if fuelAmount > fuelAmount + Config.Refill.value then
+        return Config.Notification(nil, Translate('vehicle_tank_full'), 'info')
     end
 
     if isPetrolcan then
@@ -193,7 +202,7 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
             State.Vehicle.Set(vehicle, 'isFuelingTypeValue', addedFuelAmount)
         end
 
-		if fuelAmount >= 100 then
+		if fuelAmount > fuelAmount + Config.Refill.value then
 			fuelAmount = 100.0
 			Fuel.StopFueling()
 		end
@@ -262,3 +271,7 @@ Fuel.DetachRopeFromPlayer = function()
     State.Player.Set('isFuelingType', nil)
     State.Player.Set('fuelingCoords', nil)
 end
+
+exports('Fuel', function()
+    return Fuel
+end)

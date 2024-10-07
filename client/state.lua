@@ -79,3 +79,7 @@ State.FuelStation.RemoveAll = function()
         DeleteEntity(obj)
     end
 end
+
+exports('State', function()
+    return State
+end)

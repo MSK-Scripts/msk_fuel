@@ -1,31 +1,3 @@
-GetFuelTypesFromModel = function(entity, fuelType)
-    local pumpModel = GetEntityModel(entity)
-
-    if not Config.FuelStationTypes[pumpModel] then
-        return false
-    end
-
-    if not MSK.Table.Contains(Config.FuelStationTypes[pumpModel], fuelType) then
-        return false
-    end
-
-    return true
-end
-
-CanShowType = function(entity, fuelType)
-    local pumpModel = GetEntityModel(entity)
-
-    if not Config.FuelStationTypes[pumpModel] then
-        return false
-    end
-
-    if not MSK.Table.Contains(Config.FuelStationTypes[pumpModel], fuelType) then
-        return false
-    end
-
-    return true
-end
-
 registerTargetFuelStations = function()
     local options = {}
 
@@ -47,11 +19,11 @@ registerTargetFuelStations = function()
 
             local fuelType = GetVehicleFuelType(vehicle)
 
-            if not GetFuelTypesFromModel(entity, fuelType) then
+            if not IsFuelTypeAtFuelStation(entity, fuelType) then
                 return false
             end
 
-            if not CanShowType(entity, 'gas') then
+            if not IsFuelTypeAtFuelStation(entity, 'gas') then
                 return false
             end
 
@@ -91,11 +63,11 @@ registerTargetFuelStations = function()
 
             local fuelType = GetVehicleFuelType(vehicle)
 
-            if not GetFuelTypesFromModel(entity, fuelType) then
+            if not IsFuelTypeAtFuelStation(entity, fuelType) then
                 return false
             end
 
-            if not CanShowType(entity, 'diesel') then
+            if not IsFuelTypeAtFuelStation(entity, 'diesel') then
                 return false
             end
 
@@ -118,8 +90,8 @@ registerTargetFuelStations = function()
     }
 
     options[#options + 1] = {
-        name = 'fuel_electro',
-        label = Translate('fuel_electro'),
+        name = 'fuel_electric',
+        label = Translate('fuel_electric'),
         distance = 2.0,
         icon = 'fas fa-gas-pump',
         canInteract = function(entity)
@@ -135,11 +107,11 @@ registerTargetFuelStations = function()
 
             local fuelType = GetVehicleFuelType(vehicle)
 
-            if not GetFuelTypesFromModel(entity, fuelType) then
+            if not IsFuelTypeAtFuelStation(entity, fuelType) then
                 return false
             end
 
-            if not CanShowType(entity, 'electro') then
+            if not IsFuelTypeAtFuelStation(entity, 'electric') then
                 return false
             end
 
@@ -150,11 +122,11 @@ registerTargetFuelStations = function()
                 local vehicle, distance = MSK.GetClosestVehicle()
                 local fuelType = GetVehicleFuelType(vehicle)
 
-                if not Config.WrongFuel.allow and fuelType ~= 'electro' then
+                if not Config.WrongFuel.allow and fuelType ~= 'electric' then
                     return Config.Notification(nil, Translate('wrong_fuel', Translate(fuelType)), 'error')
                 end
 
-                Fuel.Vehicle(vehicle, 'electro', false, data)
+                Fuel.Vehicle(vehicle, 'electric', false, data)
             else
                 Config.Notification(nil, Translate('not_enough_money'), 'error')
             end
@@ -179,11 +151,11 @@ registerTargetFuelStations = function()
 
             local fuelType = GetVehicleFuelType(vehicle)
 
-            if not GetFuelTypesFromModel(entity, fuelType) then
+            if not IsFuelTypeAtFuelStation(entity, fuelType) then
                 return false
             end
 
-            if not CanShowType(entity, 'kerosin') then
+            if not IsFuelTypeAtFuelStation(entity, 'kerosin') then
                 return false
             end
 
@@ -339,3 +311,132 @@ registerTargetFuelStations = function()
     })
 end
 registerTargetFuelStations()
+
+registerModelFuelStations = function()
+    local options = {}
+
+    options[#options + 1] = {
+        name = 'fuel_gas',
+        label = Translate('fuel_gas'),
+        distance = 10.0,
+        icon = 'fas fa-gas-pump',
+        canInteract = function(entity)
+            if State.Player.Get('nozzle') or State.Player.Get('rope') then
+                return false
+            end
+
+            if not IsFuelTypeAtFuelStation(entity, 'gas') then
+                return false
+            end
+
+            return true
+        end,
+        onSelect = function(data)
+            if GetPlayerMoney() >= Config.Refill.price then
+                Fuel.GrabNozzle(data, 'gas')
+            else
+                Config.Notification(nil, Translate('not_enough_money'), 'error')
+            end
+        end
+    }
+
+    options[#options + 1] = {
+        name = 'fuel_diesel',
+        label = Translate('fuel_diesel'),
+        distance = 10.0,
+        icon = 'fas fa-gas-pump',
+        canInteract = function(entity)
+            if State.Player.Get('nozzle') or State.Player.Get('rope') then
+                return false
+            end
+
+            if not IsFuelTypeAtFuelStation(entity, 'diesel') then
+                return false
+            end
+
+            return true
+        end,
+        onSelect = function(data)
+            if GetPlayerMoney() >= Config.Refill.price then
+                Fuel.GrabNozzle(data, 'diesel')
+            else
+                Config.Notification(nil, Translate('not_enough_money'), 'error')
+            end
+        end
+    }
+
+    options[#options + 1] = {
+        name = 'fuel_electric',
+        label = Translate('fuel_electric'),
+        distance = 10.0,
+        icon = 'fas fa-gas-pump',
+        canInteract = function(entity)
+            if State.Player.Get('nozzle') or State.Player.Get('rope') then
+                return false
+            end
+
+            if not IsFuelTypeAtFuelStation(entity, 'electric') then
+                return false
+            end
+
+            return true
+        end,
+        onSelect = function(data)
+            if GetPlayerMoney() >= Config.Refill.price then
+                Fuel.GrabNozzle(data, 'electric')
+            else
+                Config.Notification(nil, Translate('not_enough_money'), 'error')
+            end
+        end
+    }
+
+    options[#options + 1] = {
+        name = 'fuel_kerosin',
+        label = Translate('fuel_kerosin'),
+        distance = 10.0,
+        icon = 'fas fa-gas-pump',
+        canInteract = function(entity)
+            if State.Player.Get('nozzle') or State.Player.Get('rope') then
+                return false
+            end
+
+            if not IsFuelTypeAtFuelStation(entity, 'kerosin') then
+                return false
+            end
+
+            return true
+        end,
+        onSelect = function(data)
+            if GetPlayerMoney() >= Config.Refill.price then
+                Fuel.GrabNozzle(data, 'kerosin')
+            else
+                Config.Notification(nil, Translate('not_enough_money'), 'error')
+            end
+        end
+    }
+
+    options[#options + 1] = {
+        name = 'cancel_fueling',
+        label = Translate('return_nozzle'),
+        distance = 10.0,
+        icon = 'fas fa-gas-pump',
+        canInteract = function(entity)
+            if not State.Player.Get('nozzle') or not State.Player.Get('rope') then
+                return false
+            end
+
+            if not State.Player.Get('nozzleAttached') then
+                return false
+            end
+
+            return true
+        end,
+        onSelect = function(data)
+            Fuel.DetachRopeFromPlayer()
+        end
+    }
+
+    exports.ox_target:addModel(Config.FuelVehicles, options)
+    exports.ox_target:addModel(Config.FuelModels, options)
+end
+registerModelFuelStations()

@@ -75,6 +75,7 @@ Config.FuelStationTypes = {
         * 'electric' -> For electric vehicles
     ]]
 
+    -- Fuel Stations
     [`prop_gas_pump_old2`] = {'gas', 'diesel', 'kerosin'},
     [`prop_gas_pump_1a`] = {'gas', 'diesel', 'kerosin'},
     [`prop_vintage_pump`] = {'gas', 'diesel', 'kerosin'},
@@ -85,11 +86,75 @@ Config.FuelStationTypes = {
 
     -- If you have a custom fuel station for electric vehicles then add them here
     -- [`model`] = {'electric'}
+
+    -- Vehicles
+    [`utillitruck2`] = {'gas', 'diesel', 'kerosin', 'electric'},
+
+    -- Trailer
+    [`armytanker`] = {'gas', 'diesel', 'kerosin'},
+    [`tanker`] = {'gas', 'diesel', 'kerosin'},
+    [`tanker2`] = {'gas', 'diesel', 'kerosin'},
+
+    -- Models
+    [`prop_ind_deiseltank`] = {'gas', 'diesel', 'kerosin'},
+    [`prop_tanktrailer_01a`] = {'gas', 'diesel', 'kerosin'},
+    [`prop_air_fueltrail1`] = {'gas', 'diesel', 'kerosin'},
+    [`prop_air_fueltrail2`] = {'gas', 'diesel', 'kerosin'},
+
+    -- Models Electric
+    [`prop_generator_01a`] = {'electric'},
+    [`prop_generator_02a`] = {'electric'},
+    [`prop_generator_03a`] = {'electric'},
+    [`ch_chint04_tunnelgenerator`] = {'electric'},
+    [`xm3_int3_int02_generator_01`] = {'electric'},
+    [`gr_int02_generator_01`] = {'electric'},
+    [`ch_prop_ch_generator_01a`] = {'electric'},
+    [`m23_1_prop_m31_generator_01a`] = {'electric'},
+    [`prop_generator_04`] = {'electric'},
+    [`prop_air_generator_01`] = {'electric'},
+    [`sf_prop_sf_air_generator_01`] = {'electric'},
 }
 
 -- Spawns the given Fuel Pump on the given coords
 Config.CustomFuelStations = {
-    {model = `prop_gas_pump_1c`, coords = vector4(166.44, 6461.82, 31.2, 176.24)},
+    {model = `prop_gas_pump_1c`, coords = vector4(166.44, 6461.82, 31.2, 176.24), showBlip = true},
+    
+    {model = `prop_ind_deiseltank`, coords = vector4(1761.61, 3228.0, 42.52, 232.38), showBlip = false},
+    {model = `prop_generator_01a`, coords = vector4(1787.35, 3327.75, 41.4, 303.47), showBlip = false},
+}
+----------------------------------------------------------------
+-- Vehicle that acts as a fuel station
+Config.FuelVehicles = {
+    -- Vehicles
+    `utillitruck2`, -- https://forge.plebmasters.de/vehicles/MjUzNDg2MjEwNg
+
+    -- Trailer
+    `armytanker`, -- https://forge.plebmasters.de/vehicles/MjkwNDY4NzUwMQ
+    `tanker`, -- https://forge.plebmasters.de/vehicles/MjE2MTI0MjU0OQ
+    `tanker2`, -- https://forge.plebmasters.de/vehicles/MzMwOTk1NzIxNg
+}
+
+-- Models/Props that acts as a fuel station
+Config.FuelModels = {
+    -- Use `` and NOT "" and NOT ''
+
+    `prop_ind_deiseltank`, -- https://forge.plebmasters.de/objects/prop_ind_deiseltank
+    `prop_tanktrailer_01a`, -- https://forge.plebmasters.de/objects/prop_tanktrailer_01a
+    `prop_air_fueltrail1`, -- https://forge.plebmasters.de/objects/prop_air_fueltrail1
+    `prop_air_fueltrail2`, -- https://forge.plebmasters.de/objects/prop_air_fueltrail2
+
+    -- Electric Models
+    `prop_generator_01a`, -- https://forge.plebmasters.de/objects/prop_generator_01a
+    `prop_generator_02a`, -- https://forge.plebmasters.de/objects/prop_generator_02a
+    `prop_generator_03a`, -- https://forge.plebmasters.de/objects/prop_generator_03a
+    `ch_chint04_tunnelgenerator`, -- https://forge.plebmasters.de/objects/ch_chint04_tunnelgenerator
+    `xm3_int3_int02_generator_01`, -- https://forge.plebmasters.de/objects/xm3_int3_int02_generator_01
+    `gr_int02_generator_01`, -- https://forge.plebmasters.de/objects/gr_int02_generator_01
+    `ch_prop_ch_generator_01a`, -- https://forge.plebmasters.de/objects/ch_prop_ch_generator_01a
+    `m23_1_prop_m31_generator_01a`, -- https://forge.plebmasters.de/objects/m23_1_prop_m31_generator_01a
+    `prop_generator_04`, -- https://forge.plebmasters.de/objects/prop_generator_04
+    `prop_air_generator_01`, -- https://forge.plebmasters.de/objects/prop_air_generator_01
+    `sf_prop_sf_air_generator_01`, -- https://forge.plebmasters.de/objects/sf_prop_sf_air_generator_01
 }
 ----------------------------------------------------------------
 -- This is only for Blips
@@ -127,3 +192,7 @@ Config.FuelStations = {
     vector3(179.94, 6602.6, 31.85),
     vector3(-93.98, 6420.1, 31.48),
 }
+----------------------------------------------------------------
+exports('Config', function()
+    return Config
+end)
