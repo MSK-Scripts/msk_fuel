@@ -29,7 +29,7 @@ Config.FuelStationBlips = {
 }
 
 -- See FiveM Native Reference (SetFuelConsumptionRateMultiplier - https://docs.fivem.net/natives/?_0x845F3E5C)
-Config.FuelConsumptionRateMultiplier = 10.0 -- Sets fuel consumption rate multiplier for all vehicles operated by a player.
+Config.FuelConsumptionRateMultiplier = 2.0 -- Sets fuel consumption rate multiplier for all vehicles operated by a player.
 
 Config.Refill = {
     tick = 250, -- Fuel Tick Rate (every 250 miliseconds)

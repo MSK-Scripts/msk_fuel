@@ -62,12 +62,21 @@ CalculateVehicleFuel = function(vehicle)
 		local fuelLevel = vehState.fuel
 		local currFuelLevel = GetVehicleFuelLevel(vehicle)
 
+		if GetIsVehicleEngineRunning(vehicle) and not State.Vehicle.Get(vehicle, 'consumFuel') then
+			State.Vehicle.Set(vehicle, 'consumFuel', true)
+			SetVehicleHandlingFloat(vehicle, 'CHandlingData', 'fPetrolConsumptionRate', Config.FuelConsumptionRateMultiplier)
+		elseif not GetIsVehicleEngineRunning(vehicle) and State.Vehicle.Get(vehicle, 'consumFuel') then
+			State.Vehicle.Set(vehicle, 'consumFuel', nil)
+			SetVehicleHandlingFloat(vehicle, 'CHandlingData', 'fPetrolConsumptionRate', 0)
+		end
+
 		if fuelLevel > 0 then
 			if GetVehiclePetrolTankHealth(vehicle) < 700 then
 				currFuelLevel -= math.random(10, 20) * 0.01
 			end
 
 			if fuelLevel ~= currFuelLevel then
+				logging('debug', 'CalculateVehicleFuel', currFuelLevel)
 				SetVehicleFuel(vehicle, currFuelLevel)
 			end
 		end
@@ -86,12 +95,6 @@ CalculateVehicleFuel = function(vehicle)
 	end
 
 	SetVehicleFuel(vehicle, vehState.fuel)
-end
-
-if MSK.Player.seat == -1 then
-	CreateThread(function()
-		CalculateVehicleFuel(MSK.Player.vehicle)
-	end)
 end
 
 CreateThread(function()
@@ -183,6 +186,12 @@ CreateThread(function()
 	end
 end)
 
+if MSK.Player.seat == -1 then
+	CreateThread(function()
+		CalculateVehicleFuel(MSK.Player.vehicle)
+	end)
+end
+
 AddEventHandler('msk_core:onSeatChange', function(vehicle, seat)
     if not seat or seat ~= -1 then return end
 	CalculateVehicleFuel(vehicle)
@@ -200,6 +209,16 @@ RegisterNetEvent('msk_fuel:setVehicleRepaired', function(netId, fuel)
     if not DoesEntityExist(vehicle) then return end
 
     SetEngineRepaired(vehicle)
+end)
+
+AddStateBagChangeHandler("fuel", nil, function(bagName, key, value, reserved, replicated) 
+    local entity = GetEntityFromStateBagName(bagName)
+    if not IsEntityAVehicle(entity) then return end
+
+	local invoke = GetInvokingResource()
+	if not invoke or invoke == 'msk_fuel' then return end
+
+	SetVehicleFuel(entity, value + 0.0)
 end)
 
 AddEventHandler('onResourceStop', function(resource)

@@ -206,26 +206,6 @@ CalculateFuelType = function(vehicle)
     end
 end
 
-SetVehicleFuelType = function(vehicle, fuelType)
-    assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
-
-    if not fuelType then 
-        CalculateFuelType(vehicle)
-        return
-    end
-
-    State.Vehicle.Set(vehicle, 'fuelType', fuelType)
-end
-exports('SetVehicleFuelType', SetVehicleFuelType)
-
-GetVehicleFuelType = function(vehicle)
-    assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
-    local fuelType = State.Vehicle.Get(vehicle, 'fuelType')
-
-    return fuelType or CalculateFuelType(vehicle)
-end
-exports('GetVehicleFuelType', GetVehicleFuelType)
-
 SetVehicleFuel = function(vehicle, fuel)
     assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
     fuel = tonumber(fuel) + 0.0
@@ -245,6 +225,26 @@ GetVehicleFuel = function(vehicle)
     return Entity(vehicle).state.fuel
 end
 exports('GetVehicleFuel', GetVehicleFuel)
+
+SetVehicleFuelType = function(vehicle, fuelType)
+    assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
+
+    if not fuelType then 
+        CalculateFuelType(vehicle)
+        return
+    end
+
+    State.Vehicle.Set(vehicle, 'fuelType', fuelType)
+end
+exports('SetVehicleFuelType', SetVehicleFuelType)
+
+GetVehicleFuelType = function(vehicle)
+    assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
+    local fuelType = State.Vehicle.Get(vehicle, 'fuelType')
+
+    return fuelType or CalculateFuelType(vehicle)
+end
+exports('GetVehicleFuelType', GetVehicleFuelType)
 
 SetEngineFailure = function(vehicle)
     assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
