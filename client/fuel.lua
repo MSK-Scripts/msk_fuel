@@ -1,6 +1,7 @@
 Fuel = {}
 
 Fuel.GrabNozzle = function(data, fuelType)
+    TriggerEvent('ox_inventory:disarm') -- Disarm Playe
     local playerPed = MSK.Player.playerPed
 
     MSK.Request.AnimDict("anim@am_hold_up@male")
@@ -34,9 +35,9 @@ Fuel.GrabNozzle = function(data, fuelType)
     State.Player.Set('nozzleCoords', data.coords)
     State.Player.Set('isFuelingType', fuelType)
 end
-local grabNozzle = Fuel.GrabNozzle
 
-Fuel.Vehicle = function(vehicle, fuelType, isPetrolcan, data)
+-- Refill vehicle with Petrolcan
+Fuel.Vehicle = function(vehicle, fuelType)
     if State.Vehicle.Get(vehicle, 'isFueling') then return end
     State.Player.Set('isFuelingType', fuelType)
 
@@ -47,24 +48,14 @@ Fuel.Vehicle = function(vehicle, fuelType, isPetrolcan, data)
         return Config.Notification(nil, Translate('vehicle_tank_full'), 'info')
     end
 
-    if isPetrolcan then
-        local weapon = State.Player.Get('petrolcan')
+    local weapon = State.Player.Get('petrolcan')
 
-        if not weapon or GetSelectedPedWeapon(MSK.Player.playerPed) ~= `WEAPON_PETROLCAN` then
-            return Config.Notification(nil, Translate('petrolcan_not_equipped'), 'error')
-        end
-
-        if weapon and weapon.metadata.ammo <= Config.Petrolcan.durabilityTick then
-            return Config.Notification(nil, Translate('petrolcan_not_enough_fuel'), 'error')
-        end
-    else
-        if Config.Refill.price > GetPlayerMoney() then
-            return Config.Notification(nil, Translate('not_enough_money'), 'error')
-        end
+    if not weapon or GetSelectedPedWeapon(MSK.Player.playerPed) ~= `WEAPON_PETROLCAN` then
+        return Config.Notification(nil, Translate('petrolcan_not_equipped'), 'error')
     end
 
-    if not isPetrolcan then
-        return grabNozzle(data)
+    if weapon and weapon.metadata.ammo <= Config.Petrolcan.durabilityTick then
+        return Config.Notification(nil, Translate('petrolcan_not_enough_fuel'), 'error')
     end
 
     TaskTurnPedToFaceEntity(MSK.Player.playerPed, vehicle, duration)
@@ -73,6 +64,7 @@ Fuel.Vehicle = function(vehicle, fuelType, isPetrolcan, data)
     Fuel.StartFueling(vehicle, duration, true)
 end
 
+-- Refill/Buy Petrolcan
 Fuel.Petrolcan = function(coords, refill)
     local playerPed = MSK.Player.playerPed
     local duration = Config.Petrolcan.refillDuration * 1000
@@ -108,6 +100,10 @@ end
 Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
     local fuelType = State.Player.Get('isFuelingType')
     local vehFuelType = GetVehicleFuelType(vehicle)
+
+    if not Config.WrongFuel.allow and fuelType ~= vehFuelType then
+        return Config.Notification(nil, Translate('wrong_fuel', Translate(vehFuelType)), 'error')
+    end
 
     if vehFuelType ~= fuelType then
         logging('debug', 'Fueling Type does not match')
@@ -273,6 +269,7 @@ Fuel.DetachRopeFromPlayer = function()
     State.Player.Set('nozzleCoords', nil)
 end
 
-exports('Fuel', function()
+local getFuelData = function()
     return Fuel
-end)
+end
+exports('Fuel', getFuelData)

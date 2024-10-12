@@ -192,9 +192,10 @@ if MSK.Player.seat == -1 then
 	end)
 end
 
-AddEventHandler('msk_core:onSeatChange', function(vehicle, seat)
-    if not seat or seat ~= -1 then return end
-	CalculateVehicleFuel(vehicle)
+AddEventHandler('msk_core:onPlayer', function(key, value)
+	if key ~= 'seat' then return end
+    if value ~= -1 then return end
+	CalculateVehicleFuel(MSK.Player.vehicle)
 end)
 
 RegisterNetEvent('msk_fuel:setVehicleFuel', function(netId, fuel)

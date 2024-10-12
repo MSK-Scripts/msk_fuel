@@ -7,19 +7,7 @@ registerTargetFuelStations = function()
         distance = 2.0,
         icon = 'fas fa-gas-pump',
         canInteract = function(entity)
-            local vehicle, distance = MSK.GetClosestVehicle()
-
-            if not DoesEntityExist(vehicle) or distance > 2.5 then
-                return false
-            end
-
             if State.Player.Get('nozzle') or State.Player.Get('rope') then
-                return false
-            end
-
-            local fuelType = GetVehicleFuelType(vehicle)
-
-            if not IsFuelTypeAtFuelStation(entity, fuelType) then
                 return false
             end
 
@@ -31,14 +19,7 @@ registerTargetFuelStations = function()
         end,
         onSelect = function(data)
             if GetPlayerMoney() >= Config.Refill.price then
-                local vehicle, distance = MSK.GetClosestVehicle()
-                local fuelType = GetVehicleFuelType(vehicle)
-
-                if not Config.WrongFuel.allow and fuelType ~= 'gas' then
-                    return Config.Notification(nil, Translate('wrong_fuel', Translate(fuelType)), 'error')
-                end
-
-                Fuel.Vehicle(vehicle, 'gas', false, data)
+                Fuel.GrabNozzle(data, 'gas')
             else
                 Config.Notification(nil, Translate('not_enough_money'), 'error')
             end
@@ -51,19 +32,7 @@ registerTargetFuelStations = function()
         distance = 2.0,
         icon = 'fas fa-gas-pump',
         canInteract = function(entity)
-            local vehicle, distance = MSK.GetClosestVehicle()
-
-            if not DoesEntityExist(vehicle) or distance > 2.5 then
-                return false
-            end
-
             if State.Player.Get('nozzle') or State.Player.Get('rope') then
-                return false
-            end
-
-            local fuelType = GetVehicleFuelType(vehicle)
-
-            if not IsFuelTypeAtFuelStation(entity, fuelType) then
                 return false
             end
 
@@ -75,14 +44,7 @@ registerTargetFuelStations = function()
         end,
         onSelect = function(data)
             if GetPlayerMoney() >= Config.Refill.price then
-                local vehicle, distance = MSK.GetClosestVehicle()
-                local fuelType = GetVehicleFuelType(vehicle)
-
-                if not Config.WrongFuel.allow and fuelType ~= 'diesel' then
-                    return Config.Notification(nil, Translate('wrong_fuel', Translate(fuelType)), 'error')
-                end
-
-                Fuel.Vehicle(vehicle, 'diesel', false, data)
+                Fuel.GrabNozzle(data, 'diesel')
             else
                 Config.Notification(nil, Translate('not_enough_money'), 'error')
             end
@@ -95,19 +57,7 @@ registerTargetFuelStations = function()
         distance = 2.0,
         icon = 'fas fa-gas-pump',
         canInteract = function(entity)
-            local vehicle, distance = MSK.GetClosestVehicle()
-
-            if not DoesEntityExist(vehicle) or distance > 2.5 then
-                return false
-            end
-
             if State.Player.Get('nozzle') or State.Player.Get('rope') then
-                return false
-            end
-
-            local fuelType = GetVehicleFuelType(vehicle)
-
-            if not IsFuelTypeAtFuelStation(entity, fuelType) then
                 return false
             end
 
@@ -119,14 +69,7 @@ registerTargetFuelStations = function()
         end,
         onSelect = function(data)
             if GetPlayerMoney() >= Config.Refill.price then
-                local vehicle, distance = MSK.GetClosestVehicle()
-                local fuelType = GetVehicleFuelType(vehicle)
-
-                if not Config.WrongFuel.allow and fuelType ~= 'electric' then
-                    return Config.Notification(nil, Translate('wrong_fuel', Translate(fuelType)), 'error')
-                end
-
-                Fuel.Vehicle(vehicle, 'electric', false, data)
+                Fuel.GrabNozzle(data, 'electric')
             else
                 Config.Notification(nil, Translate('not_enough_money'), 'error')
             end
@@ -139,19 +82,7 @@ registerTargetFuelStations = function()
         distance = 2.0,
         icon = 'fas fa-gas-pump',
         canInteract = function(entity)
-            local vehicle, distance = MSK.GetClosestVehicle()
-
-            if not DoesEntityExist(vehicle) or distance > 2.5 then
-                return false
-            end
-
             if State.Player.Get('nozzle') or State.Player.Get('rope') then
-                return false
-            end
-
-            local fuelType = GetVehicleFuelType(vehicle)
-
-            if not IsFuelTypeAtFuelStation(entity, fuelType) then
                 return false
             end
 
@@ -163,14 +94,7 @@ registerTargetFuelStations = function()
         end,
         onSelect = function(data)
             if GetPlayerMoney() >= Config.Refill.price then
-                local vehicle, distance = MSK.GetClosestVehicle()
-                local fuelType = GetVehicleFuelType(vehicle)
-
-                if not Config.WrongFuel.allow and fuelType ~= 'kerosin' then
-                    return Config.Notification(nil, Translate('wrong_fuel', Translate(fuelType)), 'error')
-                end
-
-                Fuel.Vehicle(vehicle, 'kerosin', false, data)
+                Fuel.GrabNozzle(data, 'kerosin')
             else
                 Config.Notification(nil, Translate('not_enough_money'), 'error')
             end
@@ -223,7 +147,7 @@ registerTargetFuelStations = function()
             end,
 			onSelect = function(data)
                 local fuelType = GetVehicleFuelType(data.entity)
-                Fuel.Vehicle(data.entity, fuelType, true)
+                Fuel.Vehicle(data.entity, fuelType)
 			end
 		})
     end

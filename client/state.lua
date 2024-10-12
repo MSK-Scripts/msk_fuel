@@ -54,6 +54,7 @@ State.FuelStation.RemoveAll = function()
     end
 end
 
-exports('State', function()
+local getStateData = function()
     return State
-end)
+end
+exports('State', getStateData)
