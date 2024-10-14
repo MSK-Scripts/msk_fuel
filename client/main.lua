@@ -42,12 +42,19 @@ if Config.FuelStationBlips.enable then
 	end)
 end
 
+RegisterCommand('tankVolume', function(source, args, raw)
+	if not MSK.Player.vehicle then return end
+	local tankVolume = GetVehicleHandlingFloat(MSK.Player.vehicle, 'CHandlingData', 'fPetrolTankVolume')	
+	print(('PetrolTankVolume of %s: %s Liters'):format(MSK.GetVehicleLabel(MSK.Player.vehicle), tankVolume))
+end)
+
 SetFuelConsumptionState(true)
 SetFuelConsumptionRateMultiplier(Config.FuelConsumptionRateMultiplier)
 
 CalculateVehicleFuel = function(vehicle)
 	if not DoesVehicleUseFuel(vehicle) then return end
 	local vehState = Entity(vehicle).state
+	local model = GetEntityModel(vehicle)
 
 	if not vehState.fuel then
 		SetVehicleFuel(vehicle, GetVehicleFuelLevel(vehicle))
@@ -57,10 +64,12 @@ CalculateVehicleFuel = function(vehicle)
 		CalculateFuelType(vehicle)
 	end
 
+	if Config.PetrolTankVolume[model] then
+		SetVehicleHandlingFloat(vehicle, 'CHandlingData', 'fPetrolTankVolume', Config.PetrolTankVolume[model] + 0.0)
+	end
+
 	while MSK.Player.seat == -1 do
 		if not DoesEntityExist(vehicle) then return end
-		local fuelLevel = vehState.fuel
-		local currFuelLevel = GetVehicleFuelLevel(vehicle)
 
 		if GetIsVehicleEngineRunning(vehicle) and not State.Vehicle.Get(vehicle, 'consumFuel') then
 			State.Vehicle.Set(vehicle, 'consumFuel', true)
@@ -69,6 +78,9 @@ CalculateVehicleFuel = function(vehicle)
 			State.Vehicle.Set(vehicle, 'consumFuel', nil)
 			SetVehicleHandlingFloat(vehicle, 'CHandlingData', 'fPetrolConsumptionRate', 0)
 		end
+
+		local fuelLevel = vehState.fuel
+		local currFuelLevel = GetVehicleFuelLevel(vehicle)
 
 		if fuelLevel > 0 then
 			if GetVehiclePetrolTankHealth(vehicle) < 700 then
@@ -94,7 +106,9 @@ CalculateVehicleFuel = function(vehicle)
 		Wait(1000)
 	end
 
-	SetVehicleFuel(vehicle, vehState.fuel)
+	if DoesEntityExist(vehicle) then
+		SetVehicleFuel(vehicle, vehState.fuel)
+	end
 end
 
 CreateThread(function()

@@ -14,6 +14,11 @@ end
 
 State.Vehicle.Get = function(vehicle, stateName)
     assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
+
+    if not stateName then
+        return Entity(vehicle).state
+    end
+
     return Entity(vehicle).state[stateName]
 end
 
@@ -22,6 +27,10 @@ State.Player.Set = function(stateName, value)
 end
 
 State.Player.Get = function(stateName)
+    if not stateName then
+        return Player(MSK.Player.playerId).state
+    end
+
     return Player(MSK.Player.playerId).state[stateName]
 end
 
