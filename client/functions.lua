@@ -226,6 +226,27 @@ GetVehicleFuel = function(vehicle)
 end
 exports('GetVehicleFuel', GetVehicleFuel)
 
+SetVehicleMaxFuel = function(vehicle, maxFuel)
+    assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
+
+    Entity(vehicle).state:set('maxFuel', maxFuel, true)
+    SetVehicleHandlingFloat(vehicle, 'CHandlingData', 'fPetrolTankVolume', maxFuel)
+end
+exports('SetVehicleMaxFuel', SetVehicleMaxFuel)
+
+GetVehicleMaxFuel = function(vehicle)
+    assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
+
+    if not Entity(vehicle).state.maxFuel then
+        local maxFuel = GetVehicleHandlingFloat(vehicle, "CHandlingData", "fPetrolTankVolume")
+
+        Entity(vehicle).state:set('maxFuel', maxFuel, true)
+    end
+
+    return Entity(vehicle).state.maxFuel
+end
+exports('GetVehicleMaxFuel', GetVehicleMaxFuel)
+
 SetVehicleFuelType = function(vehicle, fuelType)
     assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
 

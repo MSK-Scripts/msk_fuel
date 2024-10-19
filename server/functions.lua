@@ -8,12 +8,19 @@ PayPrice = function(playerId, price)
     Config.Notification(playerId, Translate('not_enough_money'), 'error')
 end
 
-SetVehicleFuel = function(netId, fuel)
+GetVehicleFromNetId = function(netId)
     local vehicle = NetworkGetEntityFromNetworkId(netId)
 
     if not DoesEntityExist(vehicle) or GetEntityType(vehicle) ~= 2 then
-        return
+        return false
     end
+
+    return vehicle
+end
+
+SetVehicleFuel = function(netId, fuel)
+    local vehicle = GetVehicleFromNetId(netId)
+    assert(vehicle, 'Parameter "vehicle" is nil or the Vehicle does not exist')
 
     fuel = tonumber(fuel) + 0.0
 
@@ -21,20 +28,17 @@ SetVehicleFuel = function(netId, fuel)
 
     local entityOwner = NetworkGetEntityOwner(vehicle)
 
-    if entityOwner then
+    if entityOwner and entityOwner > 0 then
         TriggerClientEvent('msk_fuel:setVehicleFuel', entityOwner, netId, fuel)
     end
 end
 exports('SetVehicleFuel', SetVehicleFuel)
 
 GetVehicleFuel = function(netId)
-    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    local vehicle = GetVehicleFromNetId(netId)
+    assert(vehicle, 'Parameter "vehicle" is nil or the Vehicle does not exist')
 
-    if not DoesEntityExist(vehicle) or GetEntityType(vehicle) ~= 2 then
-        return
-    end
-
-    return Entity(vehicle).state.fuel or 100.0
+    return Entity(vehicle).state.fuel or 50.0
 end
 exports('GetVehicleFuel', GetVehicleFuel)
 

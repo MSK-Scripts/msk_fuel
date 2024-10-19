@@ -44,7 +44,7 @@ end
 
 RegisterCommand('tankVolume', function(source, args, raw)
 	if not MSK.Player.vehicle then return end
-	local tankVolume = GetVehicleHandlingFloat(MSK.Player.vehicle, 'CHandlingData', 'fPetrolTankVolume')	
+	local tankVolume = GetVehicleMaxFuel(MSK.Player.vehicle)
 	print(('PetrolTankVolume of %s: %s Liters'):format(MSK.GetVehicleLabel(MSK.Player.vehicle), tankVolume))
 end)
 
@@ -64,8 +64,8 @@ CalculateVehicleFuel = function(vehicle)
 		CalculateFuelType(vehicle)
 	end
 
-	if Config.PetrolTankVolume[model] then
-		SetVehicleHandlingFloat(vehicle, 'CHandlingData', 'fPetrolTankVolume', Config.PetrolTankVolume[model] + 0.0)
+	if not vehState.maxFuel then
+		SetVehicleMaxFuel(vehicle, Config.PetrolTankVolume[model] or GetVehicleHandlingFloat(vehicle, "CHandlingData", "fPetrolTankVolume"))
 	end
 
 	while MSK.Player.seat == -1 do
@@ -226,6 +226,12 @@ RegisterNetEvent('msk_fuel:setVehicleRepaired', function(netId, fuel)
     SetEngineRepaired(vehicle)
 end)
 
+AddEventHandler('onResourceStop', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+    Fuel.DetachRopeFromPlayer()
+	State.FuelStation.RemoveAll()
+end)
+
 AddStateBagChangeHandler("fuel", nil, function(bagName, key, value, reserved, replicated) 
     local entity = GetEntityFromStateBagName(bagName)
     if not IsEntityAVehicle(entity) then return end
@@ -236,8 +242,12 @@ AddStateBagChangeHandler("fuel", nil, function(bagName, key, value, reserved, re
 	SetVehicleFuel(entity, value + 0.0)
 end)
 
-AddEventHandler('onResourceStop', function(resource)
-    if resource ~= GetCurrentResourceName() then return end
-    Fuel.DetachRopeFromPlayer()
-	State.FuelStation.RemoveAll()
+AddStateBagChangeHandler("maxFuel", nil, function(bagName, key, value, reserved, replicated) 
+    local entity = GetEntityFromStateBagName(bagName)
+    if not IsEntityAVehicle(entity) then return end
+
+	local invoke = GetInvokingResource()
+	if not invoke or invoke == 'msk_fuel' then return end
+
+	SetVehicleMaxFuel(entity, value)
 end)

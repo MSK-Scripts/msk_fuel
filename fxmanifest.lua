@@ -4,7 +4,7 @@ games { 'gta5' }
 author 'Musiker15 - MSK Scripts'
 name 'msk_fuel'
 description 'Fuel System for Vehicle'
-version '0.0.6'
+version '1.0.0'
 
 lua54 'yes'
 

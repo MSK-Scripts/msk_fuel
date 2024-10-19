@@ -1,5 +1,5 @@
 Config.PetrolTankVolume = {
     -- Use `` and NOT "" and NOT ''
 
-    [`pounder`] = 100.0,
+    [`pounder`] = 100,
 }

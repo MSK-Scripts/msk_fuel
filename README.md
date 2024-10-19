@@ -1,30 +1,14 @@
 # MSK Fuel
 Fuel System for Vehicles
 
-## Get Vehicle Fuel Level
-Returns: int
-```lua
-fuelLevel = exports.msk_fuel:GetVehicleFuel(vehicle)
+[Documentation](https://docu.msk-scripts.de/fuel)
 
--- You can also use:
-fuelLevel = Entity(entity).state.fuel
-```
+This script uses the new [Fuel consumption](https://docs.fivem.net/docs/scripting-manual/using-new-game-features/fuel-consumption/).
 
-## Set Vehicle Fuel Level
-```lua
-exports.msk_fuel:SetVehicleFuel(vehicle, fuelAmount)
+## Description
+* Description will follow soon...
 
--- You can also use:
-Entity(entity).state.fuel = fuelAmount
-```
-
-## Get Vehicle Fuel Type
-Returns: string
-```lua
-fuelType = exports.msk_fuel:GetVehicleFuelType(vehicle)
-```
-
-## Repair Vehicle if refueled with the wrong fuel
-```lua
-exports.msk_fuel:SetEngineRepaired(vehicle)
-```
+## Requirements
+* msk_core
+* ox_target
+* ox_inventory

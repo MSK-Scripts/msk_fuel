@@ -10,6 +10,10 @@ State.Vehicle.Set = function(vehicle, stateName, value)
     if stateName == 'fuel' then
         SetVehicleFuel(vehicle, value)
     end
+
+    if stateName == 'maxFuel' then
+        SetVehicleMaxFuel(vehicle, value)
+    end
 end
 
 State.Vehicle.Get = function(vehicle, stateName)
@@ -53,6 +57,7 @@ State.FuelStation.Remove = function(object)
     for i, obj in ipairs(FuelStations) do
         if obj == object then
             table.remove(FuelStations, i)
+            break
         end
     end
 end
@@ -61,6 +66,8 @@ State.FuelStation.RemoveAll = function()
     for i, obj in ipairs(FuelStations) do
         DeleteEntity(obj)
     end
+
+    FuelStations = {}
 end
 
 local getStateData = function()

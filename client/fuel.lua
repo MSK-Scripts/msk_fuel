@@ -41,8 +41,8 @@ Fuel.Vehicle = function(vehicle, fuelType)
     if State.Vehicle.Get(vehicle, 'isFueling') then return end
     State.Player.Set('isFuelingType', fuelType)
 
-    local fuelAmount = GetVehicleFuel(vehicle)
-    local duration = math.ceil((100 - fuelAmount) / Config.Refill.value) * Config.Refill.tick
+    local fuelAmount, maxFuel = GetVehicleFuel(vehicle), GetVehicleMaxFuel(vehicle)
+    local duration = math.ceil((maxFuel - fuelAmount) / Config.Refill.value) * Config.Refill.tick
 
     if fuelAmount > fuelAmount + Config.Refill.value then
         return Config.Notification(nil, Translate('vehicle_tank_full'), 'info')
@@ -126,11 +126,11 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
     State.Player.Set('fuelingCoords', GetEntityCoords(vehicle))
     State.Vehicle.Set(vehicle, 'isFueling', true)
 
-    local fuelAmount, addedFuelAmount = GetVehicleFuel(vehicle), 0
+    local fuelAmount, maxFuel, addedFuelAmount = GetVehicleFuel(vehicle), GetVehicleMaxFuel(vehicle), 0
     local price, moneyAmount = 0, GetPlayerMoney()
     
     if not duration then
-        duration = math.ceil((100 - fuelAmount) / Config.Refill.value) * Config.Refill.tick
+        duration = math.ceil((maxFuel - fuelAmount) / Config.Refill.value) * Config.Refill.tick
     end
 
     if fuelAmount > fuelAmount + Config.Refill.value then
@@ -198,8 +198,8 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
             State.Vehicle.Set(vehicle, 'isFuelingTypeValue', addedFuelAmount)
         end
 
-		if fuelAmount >= 100.0 then
-			fuelAmount = 100.0
+		if fuelAmount >= maxFuel then
+			fuelAmount = maxFuel
 			Fuel.StopFueling()
 		end
 
@@ -239,8 +239,8 @@ Fuel.AttachRopeToVehicle = function(vehicle)
     State.Vehicle.Set(vehicle, 'nozzleAttached', true)
     State.Player.Set('nozzleAttached', false)
 
-    local fuelAmount = GetVehicleFuel(vehicle)
-    local duration = math.ceil((100 - fuelAmount) / Config.Refill.value) * Config.Refill.tick
+    local fuelAmount, maxFuel = GetVehicleFuel(vehicle), GetVehicleMaxFuel(vehicle)
+    local duration = math.ceil((maxFuel - fuelAmount) / Config.Refill.value) * Config.Refill.tick
     Fuel.StartFueling(vehicle, duration, false)
 end
 
