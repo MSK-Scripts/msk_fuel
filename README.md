@@ -3,7 +3,7 @@ Fuel System for Vehicles
 
 This script uses the new [Fuel consumption](https://docs.fivem.net/docs/scripting-manual/using-new-game-features/fuel-consumption/).
 
-[Documentation](https://docu.msk-scripts.de/fuel)
+[Documentation](https://docu.msk-scripts.de/docs/msk_fuel/)
 
 ## Description
 * Description will follow soon...
