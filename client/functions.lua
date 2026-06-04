@@ -103,84 +103,76 @@ exports('GetVehicleFuelTankBoneIndex', GetVehicleFuelTankBoneIndex)
 IsVehicleGas = function(vehicle)
     local fuelType = State.Vehicle.Get(vehicle, 'fuelType')
 
-    if fuelType and fuelType == 'gas' then 
-        return true 
+    if fuelType then
+        return fuelType == 'gas'
     end
 
     local model = GetEntityModel(vehicle)
-    local typeOfFuel
 
-    for fuelType, vehModel in pairs(Config.Vehicles.gas) do
+    for _, vehModel in pairs(Config.Vehicles.gas) do
         if vehModel == model then
-            typeOfFuel = fuelType
-            break
+            return true
         end
     end
 
-    return typeOfFuel
+    return false
 end
 exports('IsVehicleGas', IsVehicleGas)
 
 IsVehicleDiesel = function(vehicle)
     local fuelType = State.Vehicle.Get(vehicle, 'fuelType')
 
-    if fuelType and fuelType == 'diesel' then 
-        return true 
+    if fuelType then
+        return fuelType == 'diesel'
     end
 
     local model = GetEntityModel(vehicle)
-    local typeOfFuel
 
-    for fuelType, vehModel in pairs(Config.Vehicles.diesel) do
+    for _, vehModel in pairs(Config.Vehicles.diesel) do
         if vehModel == model then
-            typeOfFuel = fuelType
-            break
+            return true
         end
     end
 
-    return typeOfFuel
+    return false
 end
 exports('IsVehicleDiesel', IsVehicleDiesel)
 
 IsVehicleKerosin = function(vehicle)
     local fuelType = State.Vehicle.Get(vehicle, 'fuelType')
-    
-    if fuelType and fuelType == 'kerosin' then 
-        return true 
+
+    if fuelType then
+        return fuelType == 'kerosin'
     end
 
     local model = GetEntityModel(vehicle)
-    local typeOfFuel
 
-    for fuelType, vehModel in pairs(Config.Vehicles.kerosin) do
+    for _, vehModel in pairs(Config.Vehicles.kerosin) do
         if vehModel == model then
-            typeOfFuel = fuelType
-            break
+            return true
         end
     end
 
-    return typeOfFuel
+    return false
 end
 exports('IsVehicleKerosin', IsVehicleKerosin)
 
 IsVehicleElectric = function(vehicle)
     local fuelType = State.Vehicle.Get(vehicle, 'fuelType')
-    
-    if fuelType and fuelType == 'electric' then 
-        return true 
+
+    if fuelType then
+        return fuelType == 'electric'
     end
 
     local model = GetEntityModel(vehicle)
-    local typeOfFuel
 
-    for fuelType, vehModel in pairs(Config.Vehicles.electric) do
+    for _, vehModel in pairs(Config.Vehicles.electric) do
         if vehModel == model then
-            typeOfFuel = fuelType
-            break
+            return true
         end
     end
 
-    return typeOfFuel
+    return false
 end
 exports('IsVehicleElectric', IsVehicleElectric)
 
@@ -204,6 +196,10 @@ CalculateFuelType = function(vehicle)
         SetVehicleFuelType(vehicle, 'electric')
         return 'electric'
     end
+
+    -- Fallback for vehicles that are not listed in Config.Vehicles
+    SetVehicleFuelType(vehicle, Config.DefaultFuelType)
+    return Config.DefaultFuelType
 end
 
 SetVehicleFuel = function(vehicle, fuel)
@@ -271,7 +267,7 @@ SetEngineFailure = function(vehicle)
     assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
     if State.Vehicle.Get(vehicle, 'engineFailure') then return end
 
-    if State.Vehicle.Get(vehicle, 'isFuelingTypeValue') < Config.WrongFuel.liter then 
+    if (State.Vehicle.Get(vehicle, 'isFuelingTypeValue') or 0) < Config.WrongFuel.liter then
         State.Vehicle.Set(vehicle, 'isFuelingType', nil)
         State.Vehicle.Set(vehicle, 'isFuelingTypeValue', nil)
         return 

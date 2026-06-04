@@ -44,7 +44,7 @@ Fuel.Vehicle = function(vehicle, fuelType)
     local fuelAmount, maxFuel = GetVehicleFuel(vehicle), GetVehicleMaxFuel(vehicle)
     local duration = math.ceil((maxFuel - fuelAmount) / Config.Refill.value) * Config.Refill.tick
 
-    if fuelAmount > fuelAmount + Config.Refill.value then
+    if fuelAmount >= maxFuel then
         return Config.Notification(nil, Translate('vehicle_tank_full'), 'info')
     end
 
@@ -89,9 +89,9 @@ Fuel.Petrolcan = function(coords, refill)
     })
 
     if refill then
-        TriggerServerEvent('msk_fuel:refillCan', Config.Petrolcan.refillPrice, true)
+        TriggerServerEvent('msk_fuel:refillCan', true)
     else
-        TriggerServerEvent('msk_fuel:refillCan', Config.Petrolcan.price)
+        TriggerServerEvent('msk_fuel:refillCan')
     end
 
     ClearPedTasks(playerPed)
@@ -133,7 +133,7 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
         duration = math.ceil((maxFuel - fuelAmount) / Config.Refill.value) * Config.Refill.tick
     end
 
-    if fuelAmount > fuelAmount + Config.Refill.value then
+    if fuelAmount >= maxFuel then
         return Config.Notification(nil, Translate('vehicle_tank_full'), 'info')
     end
 
@@ -210,7 +210,7 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
         ClearPedTasks(MSK.Player.playerPed)
         TriggerServerEvent('msk_fuel:updateFuelCan', durability, fuelAmount, NetworkGetNetworkIdFromEntity(vehicle))
     else
-        TriggerServerEvent('msk_fuel:payFuelPrice', price, fuelAmount, NetworkGetNetworkIdFromEntity(vehicle))
+        TriggerServerEvent('msk_fuel:payFuelPrice', fuelAmount, NetworkGetNetworkIdFromEntity(vehicle))
     end
 end
 
