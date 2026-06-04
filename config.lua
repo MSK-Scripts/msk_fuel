@@ -29,7 +29,15 @@ Config.FuelStationBlips = {
 }
 
 -- See FiveM Native Reference (SetFuelConsumptionRateMultiplier - https://docs.fivem.net/natives/?_0x845F3E5C)
-Config.FuelConsumptionRateMultiplier = 2.0 -- Sets fuel consumption rate multiplier for all vehicles operated by a player.
+Config.FuelConsumptionRateMultiplier = 2.0 -- Sets the GLOBAL fuel consumption rate multiplier for all vehicles operated by a player.
+
+-- Per-vehicle handling consumption rate (fPetrolConsumptionRate) applied while the engine is running.
+-- This is a different value than the global multiplier above.
+Config.PetrolConsumptionRate = 2.0
+
+-- Maximum distance (in units) a player may be away from a vehicle to fuel it.
+-- Serverside anti-exploit check. Keep this generous so it never interrupts legit fueling (planes/helicopters use long ropes).
+Config.MaxFuelingDistance = 100.0
 
 Config.Refill = {
     tick = 250, -- Fuel Tick Rate (every 250 miliseconds)

@@ -18,6 +18,17 @@ GetVehicleFromNetId = function(netId)
     return vehicle
 end
 
+-- Serverside anti-exploit check: is the player close enough to the vehicle to interact with it?
+IsPlayerNearVehicle = function(playerId, vehicle, maxDist)
+    local ped = GetPlayerPed(playerId)
+    if not ped or ped == 0 then return false end
+    if not vehicle or not DoesEntityExist(vehicle) then return false end
+
+    local dist = #(GetEntityCoords(ped) - GetEntityCoords(vehicle))
+    return dist <= (maxDist or Config.MaxFuelingDistance)
+end
+exports('IsPlayerNearVehicle', IsPlayerNearVehicle)
+
 SetVehicleFuel = function(netId, fuel)
     local vehicle = GetVehicleFromNetId(netId)
     assert(vehicle, 'Parameter "vehicle" is nil or the Vehicle does not exist')

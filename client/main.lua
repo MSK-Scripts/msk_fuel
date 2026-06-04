@@ -51,8 +51,13 @@ end)
 SetFuelConsumptionState(true)
 SetFuelConsumptionRateMultiplier(Config.FuelConsumptionRateMultiplier)
 
+local fuelLoopActive = false
+
 CalculateVehicleFuel = function(vehicle)
 	if not DoesVehicleUseFuel(vehicle) then return end
+	if fuelLoopActive then return end -- Prevent concurrent fuel loops on the same vehicle
+	fuelLoopActive = true
+
 	local vehState = Entity(vehicle).state
 	local model = GetEntityModel(vehicle)
 
@@ -69,11 +74,11 @@ CalculateVehicleFuel = function(vehicle)
 	end
 
 	while MSK.Player.seat == -1 do
-		if not DoesEntityExist(vehicle) then return end
+		if not DoesEntityExist(vehicle) then fuelLoopActive = false return end
 
 		if GetIsVehicleEngineRunning(vehicle) and not State.Vehicle.Get(vehicle, 'consumFuel') then
 			State.Vehicle.Set(vehicle, 'consumFuel', true)
-			SetVehicleHandlingFloat(vehicle, 'CHandlingData', 'fPetrolConsumptionRate', Config.FuelConsumptionRateMultiplier)
+			SetVehicleHandlingFloat(vehicle, 'CHandlingData', 'fPetrolConsumptionRate', Config.PetrolConsumptionRate)
 		elseif not GetIsVehicleEngineRunning(vehicle) and State.Vehicle.Get(vehicle, 'consumFuel') then
 			State.Vehicle.Set(vehicle, 'consumFuel', nil)
 			SetVehicleHandlingFloat(vehicle, 'CHandlingData', 'fPetrolConsumptionRate', 0)
@@ -105,6 +110,8 @@ CalculateVehicleFuel = function(vehicle)
 
 		Wait(1000)
 	end
+
+	fuelLoopActive = false
 
 	if DoesEntityExist(vehicle) then
 		SetVehicleFuel(vehicle, vehState.fuel)
@@ -232,22 +239,30 @@ AddEventHandler('onResourceStop', function(resource)
 	State.FuelStation.RemoveAll()
 end)
 
-AddStateBagChangeHandler("fuel", nil, function(bagName, key, value, reserved, replicated) 
+AddStateBagChangeHandler("fuel", nil, function(bagName, key, value, reserved, replicated)
     local entity = GetEntityFromStateBagName(bagName)
     if not IsEntityAVehicle(entity) then return end
 
 	local invoke = GetInvokingResource()
 	if not invoke or invoke == 'msk_fuel' then return end
 
-	SetVehicleFuel(entity, value + 0.0)
+	-- Never trust replicated statebag values, validate and clamp them
+	if type(value) ~= 'number' then return end
+	local maxFuel = GetVehicleMaxFuel(entity)
+	value = math.max(0.0, math.min(value + 0.0, maxFuel))
+
+	SetVehicleFuel(entity, value)
 end)
 
-AddStateBagChangeHandler("maxFuel", nil, function(bagName, key, value, reserved, replicated) 
+AddStateBagChangeHandler("maxFuel", nil, function(bagName, key, value, reserved, replicated)
     local entity = GetEntityFromStateBagName(bagName)
     if not IsEntityAVehicle(entity) then return end
 
 	local invoke = GetInvokingResource()
 	if not invoke or invoke == 'msk_fuel' then return end
+
+	-- Never trust replicated statebag values, validate them
+	if type(value) ~= 'number' or value <= 0 then return end
 
 	SetVehicleMaxFuel(entity, value)
 end)

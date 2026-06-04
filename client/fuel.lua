@@ -178,6 +178,7 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
 
 			if price + Config.Refill.price >= moneyAmount then
 				MSK.Progress.Stop()
+				Fuel.StopFueling()
 			end
         elseif isPetrolcan and State.Player.Get('petrolcan') then
             durability += Config.Petrolcan.durabilityTick

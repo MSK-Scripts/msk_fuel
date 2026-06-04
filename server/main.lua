@@ -47,6 +47,9 @@ RegisterNetEvent('msk_fuel:payFuelPrice', function(fuel, netId)
     local vehicle = GetVehicleFromNetId(netId)
     if not vehicle then return end
 
+    -- Make sure the player is actually near the vehicle (anti-exploit)
+    if not IsPlayerNearVehicle(playerId, vehicle) then return end
+
     fuel = tonumber(fuel)
     if not fuel then return end
 
@@ -86,6 +89,9 @@ RegisterNetEvent('msk_fuel:updateFuelCan', function(durability, fuel, netId)
     local vehicle = GetVehicleFromNetId(netId)
     if not vehicle then return end
 
+    -- Make sure the player is actually near the vehicle (anti-exploit)
+    if not IsPlayerNearVehicle(playerId, vehicle) then return end
+
     -- Clamp the consumed durability to what the can actually has
     local available = item.metadata.ammo or item.metadata.durability or 0
     durability = math.min(durability, available)
@@ -99,7 +105,8 @@ RegisterNetEvent('msk_fuel:updateFuelCan', function(durability, fuel, netId)
     fuel = math.min(fuel, currentFuel + maxAddable, maxFuel)
     if fuel <= currentFuel then return end
 
-    local newDurability = math.floor(available - durability)
+    -- Round to nearest integer to avoid float drift losing can durability over time
+    local newDurability = math.floor((available - durability) + 0.5)
     item.metadata.durability = newDurability
     item.metadata.ammo = newDurability
 
