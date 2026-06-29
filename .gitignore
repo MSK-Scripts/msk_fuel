@@ -37,6 +37,6 @@ luac.out
 *.app
 *.i*86
 *.x86_64
-*.hex
+*.hex#
 
-RELEASE.md
+CFX_POST.md
