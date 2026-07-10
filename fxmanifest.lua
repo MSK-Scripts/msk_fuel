@@ -5,6 +5,7 @@ author 'Musiker15 - MSK Scripts'
 name 'msk_fuel'
 description 'Fuel System for Vehicle'
 version '1.1.0'
+license 'LGPL-3.0-or-later'
 
 lua54 'yes'
 
