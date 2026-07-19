@@ -1,5 +1,10 @@
-RegisterNetEvent('msk_fuel:refillCan', function(isRefill)
+RegisterNetEvent('msk_fuel:refillCan', function(isRefill, coords)
     local playerId = source
+
+    if not CheckRateLimit(playerId, 'refillCan', 500) then return end
+
+    -- Make sure the player is actually at a fuel station (anti-exploit)
+    if not IsPlayerNearFuelStation(playerId, coords) then return end
 
     if isRefill then
         local item = exports.ox_inventory:GetCurrentWeapon(playerId)
@@ -9,10 +14,7 @@ RegisterNetEvent('msk_fuel:refillCan', function(isRefill)
         -- Price is determined serverside, never trust the client
         local price = Config.Petrolcan.refillPrice
 
-        if GetPlayerMoney(playerId) < price then
-            return Config.Notification(playerId, Translate('not_enough_money'), 'error')
-        end
-
+        -- PayPrice removes the money and notifies on insufficient funds
         if not PayPrice(playerId, price) then return end
 
         item.metadata.durability = 100
@@ -30,10 +32,7 @@ RegisterNetEvent('msk_fuel:refillCan', function(isRefill)
             return Config.Notification(playerId, Translate('cannot_carry_petrolcan'), 'error')
         end
 
-        if GetPlayerMoney(playerId) < price then
-            return Config.Notification(playerId, Translate('not_enough_money'), 'error')
-        end
-
+        -- PayPrice removes the money and notifies on insufficient funds
         if not PayPrice(playerId, price) then return end
 
         exports.ox_inventory:AddItem(playerId, 'WEAPON_PETROLCAN', 1)
@@ -44,6 +43,9 @@ end)
 
 RegisterNetEvent('msk_fuel:payFuelPrice', function(fuel, netId)
     local playerId = source
+
+    if not CheckRateLimit(playerId, 'payFuelPrice', 500) then return end
+
     local vehicle = GetVehicleFromNetId(netId)
     if not vehicle then return end
 
@@ -65,10 +67,7 @@ RegisterNetEvent('msk_fuel:payFuelPrice', function(fuel, netId)
     -- Recalculate the price serverside based on the actually added fuel
     local price = math.ceil(addedFuel / Config.Refill.value) * Config.Refill.price
 
-    if GetPlayerMoney(playerId) < price then
-        return Config.Notification(playerId, Translate('not_enough_money'), 'error')
-    end
-
+    -- PayPrice removes the money and notifies on insufficient funds
     if not PayPrice(playerId, price) then return end
 
     SetVehicleFuel(netId, fuel)
@@ -78,6 +77,9 @@ end)
 
 RegisterNetEvent('msk_fuel:updateFuelCan', function(durability, fuel, netId)
     local playerId = source
+
+    if not CheckRateLimit(playerId, 'updateFuelCan', 500) then return end
+
     local item = exports.ox_inventory:GetCurrentWeapon(playerId)
 
     if not item or item.name ~= 'WEAPON_PETROLCAN' then return end

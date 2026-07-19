@@ -1,7 +1,7 @@
 Config = {}
 ----------------------------------------------------------------
 Config.Locale = 'de'
-Config.Debug = true
+Config.Debug = false
 Config.VersionChecker = true
 ----------------------------------------------------------------
 -- !!! This function is clientside AND serverside !!!
@@ -28,16 +28,30 @@ Config.FuelStationBlips = {
     label = Translate('fuel_station_blip'),
 }
 
--- See FiveM Native Reference (SetFuelConsumptionRateMultiplier - https://docs.fivem.net/natives/?_0x845F3E5C)
-Config.FuelConsumptionRateMultiplier = 2.0 -- Sets the GLOBAL fuel consumption rate multiplier for all vehicles operated by a player.
+-- The two values below are DIFFERENT engine concepts and multiply together in practice.
+-- Effective consumption roughly scales with FuelConsumptionRateMultiplier * PetrolConsumptionRate,
+-- so if you tune one, remember the other still applies.
 
--- Per-vehicle handling consumption rate (fPetrolConsumptionRate) applied while the engine is running.
--- This is a different value than the global multiplier above.
+-- GLOBAL multiplier for every vehicle the player operates.
+-- See FiveM Native Reference (SetFuelConsumptionRateMultiplier - https://docs.fivem.net/natives/?_0x845F3E5C)
+Config.FuelConsumptionRateMultiplier = 2.0
+
+-- PER-VEHICLE handling value (fPetrolConsumptionRate), applied only while the engine is running.
 Config.PetrolConsumptionRate = 2.0
 
 -- Maximum distance (in units) a player may be away from a vehicle to fuel it.
--- Serverside anti-exploit check. Keep this generous so it never interrupts legit fueling (planes/helicopters use long ropes).
-Config.MaxFuelingDistance = 100.0
+-- Serverside anti-exploit check. Values are per vehicle type so planes/helicopters
+-- (which use long ropes) get more range than regular vehicles.
+Config.MaxFuelingDistance = {
+    default = 20.0,
+    heli = 30.0,
+    plane = 50.0,
+}
+
+-- Maximum distance (in units) a player may be away from a fuel station to buy/refill a petrolcan.
+-- The reported pump coords must also be within Config.FuelStationZoneDistance of a known station.
+Config.MaxStationDistance = 5.0
+Config.FuelStationZoneDistance = 60.0
 
 Config.Refill = {
     tick = 250, -- Fuel Tick Rate (every 250 miliseconds)

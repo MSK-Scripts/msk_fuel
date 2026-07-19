@@ -1,0 +1,88 @@
+name: Release
+
+# Erstellt automatisch ein GitHub Release, sobald die Version in
+# fxmanifest.lua erhoeht wird und auf main gepusht wird.
+# Kann zusaetzlich manuell ueber "Run workflow" gestartet werden.
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'fxmanifest.lua'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from fxmanifest.lua
+        id: version
+        run: |
+          VERSION=$(grep -oP "^\s*version\s+'\K[^']+" fxmanifest.lua | head -n1)
+          if [ -z "$VERSION" ]; then
+            echo "::error::Konnte keine Version aus fxmanifest.lua lesen."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Gefundene Version: $VERSION"
+
+      - name: Check if release already exists
+        id: check
+        run: |
+          if git rev-parse "refs/tags/${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag ${{ steps.version.outputs.tag }} existiert bereits, Release wird uebersprungen."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Extract changelog section
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if [ -f CHANGELOG.md ]; then
+            awk -v ver="$VERSION" '
+              $0 ~ "^## \\[" ver "\\]" { flag=1; next }
+              /^## \[/ { flag=0 }
+              flag { print }
+            ' CHANGELOG.md | sed '/^[[:space:]]*$/{ /./!d }' > release_notes.md
+          fi
+          if [ ! -s release_notes.md ]; then
+            printf 'Release v%s\n' "$VERSION" > release_notes.md
+          fi
+          echo "----- Release Notes -----"
+          cat release_notes.md
+
+      - name: Build resource archive
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          mkdir -p build/msk_fuel
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='build' \
+            --exclude='release_notes.md' \
+            --exclude='Konzept.md' \
+            --exclude='CFX_POST.md' \
+            ./ build/msk_fuel/
+          cd build
+          zip -r "../msk_fuel-${{ steps.version.outputs.tag }}.zip" msk_fuel
+
+      - name: Create release
+        if: steps.check.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: msk_fuel ${{ steps.version.outputs.tag }}
+          body_path: release_notes.md
+          files: msk_fuel-${{ steps.version.outputs.tag }}.zip
+          make_latest: true

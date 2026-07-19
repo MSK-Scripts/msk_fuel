@@ -88,10 +88,13 @@ Fuel.Petrolcan = function(coords, refill)
         }
     })
 
+    -- Send the pump coords so the server can verify the player is at a station (anti-exploit)
+    local stationCoords = vector3(coords.x + 0.0, coords.y + 0.0, coords.z + 0.0)
+
     if refill then
-        TriggerServerEvent('msk_fuel:refillCan', true)
+        TriggerServerEvent('msk_fuel:refillCan', true, stationCoords)
     else
-        TriggerServerEvent('msk_fuel:refillCan')
+        TriggerServerEvent('msk_fuel:refillCan', false, stationCoords)
     end
 
     ClearPedTasks(playerPed)

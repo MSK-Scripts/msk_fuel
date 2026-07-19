@@ -202,6 +202,8 @@ CalculateFuelType = function(vehicle)
     return Config.DefaultFuelType
 end
 
+-- NOTE: The clientside SetVehicleFuel takes an ENTITY handle, the serverside one
+-- (server/functions.lua) takes a NETWORK ID. Same export name, different context.
 SetVehicleFuel = function(vehicle, fuel)
     assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
     fuel = tonumber(fuel) + 0.0
@@ -280,7 +282,7 @@ SetEngineFailure = function(vehicle)
         if not DoesEntityExist(vehicle) then return end
         engineHealth -= 150
 
-        if engineHealth >= 700 then
+        if engineHealth > 500 then
             CreateThread(function()
 				SetVehicleEngineOn(vehicle, false, true, true)
                 Wait(500)

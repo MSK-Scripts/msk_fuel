@@ -1,9 +1,17 @@
-Translate = function(locale, ...)
-    if ... then
-        return Translation[Config.Locale][locale]:format(...)
+Translate = function(key, ...)
+    -- Fall back to english, then to the raw key, so a missing entry never errors out.
+    local str = (Translation[Config.Locale] and Translation[Config.Locale][key])
+        or (Translation['en'] and Translation['en'][key])
+
+    if not str then
+        return key
     end
 
-    return Translation[Config.Locale][locale]
+    if ... then
+        return str:format(...)
+    end
+
+    return str
 end
 
 Translation = {

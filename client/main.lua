@@ -55,7 +55,7 @@ local fuelLoopActive = false
 
 CalculateVehicleFuel = function(vehicle)
 	if not DoesVehicleUseFuel(vehicle) then return end
-	if fuelLoopActive then return end -- Prevent concurrent fuel loops on the same vehicle
+	if fuelLoopActive then return end -- Only one fuel loop at a time (the player can only drive one vehicle)
 	fuelLoopActive = true
 
 	local vehState = Entity(vehicle).state

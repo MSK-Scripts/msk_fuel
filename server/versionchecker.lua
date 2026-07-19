@@ -24,8 +24,7 @@ VersionChecker = function()
         if RESOURCE_NAME ~= GetCurrentResourceName() then
             CreateThread(function()
                 while true do
-                    print(("%s [^3WARNING^0] ^3This resource should not be renamed! This can lead to errors. Please rename it to '%s'")
-                    :format(NAME_COLORED, RESOURCE_NAME))
+                    print(("%s [^3WARNING^0] ^3This resource should not be renamed! This can lead to errors. Please rename it to '%s'"):format(NAME_COLORED, RESOURCE_NAME))
                     Wait(5000)
                 end
             end)
