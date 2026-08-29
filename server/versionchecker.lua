@@ -19,6 +19,52 @@ local PrintCompatibleScripts = function()
     end
 end
 
+----------------------------------------------------------------
+-- Semantic version comparison.
+--
+-- Splitting on '.' and running tonumber over the pieces breaks the moment a
+-- version carries a pre-release tag: '1.2.0-beta.1' splits into
+-- {'1', '2', '0-beta', '1'}, tonumber('0-beta') is nil, and comparing nil to a
+-- number is a hard error.  So the tag is separated out before comparing.
+--
+-- SemVer rule: a version WITH a pre-release tag sorts BEFORE the same version
+-- without one. 1.2.0-beta.1 is older than 1.2.0 and newer than 1.1.1.
+----------------------------------------------------------------
+
+---@param version string
+---@return table core, string|nil tag
+local function parseVersion(version)
+    local core, tag = tostring(version or ''):match('^([^-]*)-?(.*)$')
+    local numbers = {}
+
+    for piece in tostring(core):gmatch('[^%.]+') do
+        numbers[#numbers + 1] = tonumber(piece) or 0
+    end
+
+    return numbers, (tag ~= '' and tag or nil)
+end
+
+---@return number -1 when `a` is older, 0 when equal, 1 when `a` is newer
+function CompareVersions(a, b)
+    local coreA, tagA = parseVersion(a)
+    local coreB, tagB = parseVersion(b)
+
+    for i = 1, math.max(#coreA, #coreB) do
+        local left, right = coreA[i] or 0, coreB[i] or 0
+
+        if left ~= right then
+            return left < right and -1 or 1
+        end
+    end
+
+    -- Same core: the one carrying a pre-release tag is the older of the two.
+    if tagA and not tagB then return -1 end
+    if tagB and not tagA then return 1 end
+    if tagA ~= tagB then return tagA < tagB and -1 or 1 end
+
+    return 0
+end
+
 VersionChecker = function()
     SetTimeout(1000, function()
         if RESOURCE_NAME ~= GetCurrentResourceName() then
@@ -45,38 +91,25 @@ VersionChecker = function()
                 return Config.VersionChecker and print(("%s ^2✓ Resource is Up to Date^0 - ^5Current Version: ^2%s^0"):format(NAME_COLORED, currentVersion))
             end
 
-            local cV = MSK.String.Split(currentVersion, '.')
-            local lV = MSK.String.Split(latestVersion, '.')
+            local comparison = CompareVersions(currentVersion, latestVersion)
 
-            for i = 1, #cV do
-                local current, latest = tonumber(cV[i]), tonumber(lV[i])
+            if comparison < 0 then
+                print(("%s [^3Update Available^0] ^3An Update is available for %s! ^0[^5Current Version: ^1%s^0 - ^5Latest Version: ^2%s^0]\r\n%s ^5Download:^4 %s ^0")
+                :format(NAME_COLORED, RESOURCE_NAME, currentVersion, latestVersion, NAME_COLORED, DOWNLOAD:format(AUTHOR, RESOURCE_NAME)))
 
-                if current ~= latest then
-                    if current < latest then
-                        print(("%s [^3Update Available^0] ^3An Update is available for %s! ^0[^5Current Version: ^1%s^0 - ^5Latest Version: ^2%s^0]\r\n%s ^5Download:^4 %s ^0")
-                        :format(NAME_COLORED, RESOURCE_NAME, currentVersion, latestVersion, NAME_COLORED, DOWNLOAD:format(AUTHOR, RESOURCE_NAME)))
+                for i = 1, #response do
+                    if response[i].version == currentVersion then break end
 
-                        for i = 1, #response do
-                            if response[i].version == currentVersion then break end
+                    if response[i].changelogs then
+                        print(("%s [^3Changelogs v%s^0]"):format(NAME_COLORED, response[i].version))
 
-                            if response[i].changelogs then
-                                print(("%s [^3Changelogs v%s^0]"):format(NAME_COLORED, response[i].version))
-
-                                for k = 1, #response[i].changelogs do
-                                    print(('%s %s'):format(NAME_COLORED, response[i].changelogs[k]))
-                                end
-                            end
+                        for k = 1, #response[i].changelogs do
+                            print(('%s %s'):format(NAME_COLORED, response[i].changelogs[k]))
                         end
-
-                        break
-                    else
-                        if Config.VersionChecker then
-                            print(("%s ^3Beta Version detected! ^0[^5Current Version: ^3%s^0 - ^5Latest Version: ^2%s^0] - ^3You can ignore this message!^0"):format(NAME_COLORED, currentVersion, latestVersion))
-                        end
-
-                        break
                     end
                 end
+            elseif comparison > 0 and Config.VersionChecker then
+                print(("%s ^3Pre-release version detected! ^0[^5Current Version: ^3%s^0 - ^5Latest Release: ^2%s^0] - ^3You can ignore this message!^0"):format(NAME_COLORED, currentVersion, latestVersion))
             end
         end)
     end)

@@ -1,46 +1,19 @@
-if Config.FuelStationBlips.enable then
-	AddTextEntry('msk_fuel_station', Config.FuelStationBlips.label)
+-- Blips are built from the station list in client/business/sync.lua now, so a
+-- station renamed or moved in the admin dashboard updates the map live.
+--
+-- The pump props below used to sit inside the blip block and therefore only
+-- spawned when blips were enabled, which had nothing to do with each other.
+CreateThread(function()
+	while not State?.FuelStation?.Add do
+		Wait(10)
+	end
 
-	CreateThread(function()
-		for i = 1, #Config.FuelStations do
-			local blip = AddBlipForCoord(Config.FuelStations[i])
-	
-			SetBlipSprite(blip, Config.FuelStationBlips.id)
-			SetBlipDisplay(blip, 4)
-			SetBlipScale(blip, Config.FuelStationBlips.scale)
-			SetBlipColour(blip, Config.FuelStationBlips.color)
-			SetBlipAsShortRange(blip, true)
-			BeginTextCommandSetBlipName('msk_fuel_station')
-			EndTextCommandSetBlipName(blip)
-		end
-
-		for k, v in pairs(Config.CustomFuelStations) do
-			if v.showBlip then
-				local blip = AddBlipForCoord(v.coords.x, v.coords.y, v.coords.z)
-	
-				SetBlipSprite(blip, Config.FuelStationBlips.id)
-				SetBlipDisplay(blip, 4)
-				SetBlipScale(blip, Config.FuelStationBlips.scale)
-				SetBlipColour(blip, Config.FuelStationBlips.color)
-				SetBlipAsShortRange(blip, true)
-				BeginTextCommandSetBlipName('msk_fuel_station')
-				EndTextCommandSetBlipName(blip)
-			end
-		end
-	end)
-
-	CreateThread(function()
-		while not State?.FuelStation?.Add do
-			Wait(10)
-		end
-
-		for k, v in pairs(Config.CustomFuelStations) do
-			local object = CreateObject(v.model, v.coords.x, v.coords.y, v.coords.z - 1.0, true, true, true)
-			SetEntityHeading(object, v.coords.w)
-			State.FuelStation.Add(object)
-		end
-	end)
-end
+	for k, v in pairs(Config.CustomFuelStations) do
+		local object = CreateObject(v.model, v.coords.x, v.coords.y, v.coords.z - 1.0, true, true, true)
+		SetEntityHeading(object, v.coords.w)
+		State.FuelStation.Add(object)
+	end
+end)
 
 RegisterCommand('tankVolume', function(source, args, raw)
 	if not MSK.Player.vehicle then return end

@@ -2,6 +2,8 @@
 
 This script uses the new [Fuel consumption](https://docs.fivem.net/docs/scripting-manual/using-new-game-features/fuel-consumption/) game feature. The complete fuel state (level, max volume, fuel type) is stored on **StateBags** and is therefore fully network-synchronized between all players.
 
+Since **v1.2.0** it is more than a fueling system: fuel stations are businesses that players can buy, staff, price and supply.
+
 [Documentation](https://docu.msk-scripts.de/docs/msk_fuel/)
 
 ## Features
@@ -45,6 +47,21 @@ Every vehicle model is mapped to its fuel type in `config.vehicles.lua`. The fue
 - A **damaged fuel tank** (`petrol tank health < 700`) causes additional fuel loss / leaking.
 - Per-model tank volume override via `config.tankvolume.lua`.
 
+### 🏪 Fuel Business
+
+Fuel stations can be bought and run as a business:
+
+- **Buy and sell** a station at its pump.
+- **Stock per fuel type** – an empty tank blocks that fuel type until it is restocked.
+- **Prices per station**, dynamic or fixed, on top of a server-wide base price that drifts with total demand across the map.
+- **Staff** with ranks, salaries, delivery bonuses and seven per-station permissions.
+- **Supply** through an NPC driver (instant, surcharge) or a delivery run you drive yourself (cheaper, three rigs, crash damage spills cargo).
+- **Public delivery jobs** at unowned stations, paid per delivered liter.
+- **Pump wear** – worn pumps fuel slower, broken ones stop working until repaired.
+- Two in-game dashboards (React + Vite + Tailwind), one for admins and one for owners.
+
+See the [documentation](https://docu.msk-scripts.de/docs/msk_fuel/business) for the whole picture.
+
 ### 📍 Fuel Stations
 
 - Default **map fuel pumps** (props) are usable out of the box via `ox_target`.
@@ -58,6 +75,7 @@ Every vehicle model is mapped to its fuel type in `config.vehicles.lua`. The fue
 | ------------------- | ------------------------------------------------------------------ |
 | `/setFuel [amount]` | Set the fuel level of the vehicle you are sitting in (default 100) |
 | `/repairVehicle`    | Repair a vehicle that was damaged by wrong fuel                    |
+| `/fueladmin`        | Open the admin dashboard (name configurable, own permission system) |
 
 Commands are restricted to the groups defined in `Config.Commands.allowedGroups` (default: `superadmin`, `admin`).
 
@@ -92,16 +110,37 @@ exports.msk_fuel:SetVehicleFuel(netId, fuel)
 
 All settings are located in:
 
-- `config.lua` – main configuration (prices, fuel types, stations, blips, commands)
+- `config.lua` – main configuration (fuel types, pump models, blips, commands)
+- `config.stations.lua` – station seed: zones, fuel types sold, purchase prices, fuel depots
+- `config.business.lua` – economy seed: prices, market, supply, payroll, maintenance
 - `config.vehicles.lua` – vehicle model → fuel type mapping
 - `config.tankvolume.lua` – per-model tank volume overrides
 - `translation.lua` – language strings
+
+`config.stations.lua` and `config.business.lua` are **seeds**: they are imported into the database on the first start, and from then on the database is the source of truth. Edit them in the admin dashboard.
+
+### NUI
+
+The dashboards are built from `web/` into `html/`, and `html/` is committed. The server needs no npm. After changing the UI:
+
+```bash
+cd web
+npm install
+npm run build
+```
 
 ## Requirements
 
 - [msk_core](https://docu.msk-scripts.de/)
 - [ox_target](https://github.com/overextended/ox_target)
 - [ox_inventory](https://github.com/overextended/ox_inventory)
+- [oxmysql](https://github.com/overextended/oxmysql) – since v1.2.0
+
+Add this single line to your `server.cfg` so the dashboard's group permissions work (it covers every MSK script at once):
+
+```cfg
+add_ace resource.msk_core command.add_ace allow
+```
 
 ## Optional
 

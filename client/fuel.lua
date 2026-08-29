@@ -131,6 +131,16 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
 
     local fuelAmount, maxFuel, addedFuelAmount = GetVehicleFuel(vehicle), GetVehicleMaxFuel(vehicle), 0
     local price, moneyAmount = 0, GetPlayerMoney()
+
+    -- What one tick of fuel costs at THIS pump. Rounded up so the client always
+    -- assumes the slightly more expensive case and stops before the player runs
+    -- out of money; the server charges the exact amount afterwards.
+    local pumpCoords = State.Player.Get('nozzleCoords')
+    local pricePerTick = math.max(1, math.ceil(Station.PricePerLiter(pumpCoords, fuelType) * Config.Refill.value))
+
+    -- A worn pump takes longer per tick. The amount of fuel per tick stays the
+    -- same, so this costs the player time, not money.
+    local tickRate = math.floor(Config.Refill.tick * Station.PumpSlowFactor(pumpCoords))
     
     if not duration then
         duration = math.ceil((maxFuel - fuelAmount) / Config.Refill.value) * Config.Refill.tick
@@ -177,9 +187,9 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
 
     while State.Vehicle.Get(vehicle, 'isFueling') do
         if not isPetrolcan then
-            price += Config.Refill.price
+            price += pricePerTick
 
-			if price + Config.Refill.price >= moneyAmount then
+			if price + pricePerTick >= moneyAmount then
 				MSK.Progress.Stop()
 				Fuel.StopFueling()
 			end
@@ -207,14 +217,16 @@ Fuel.StartFueling = function(vehicle, duration, isPetrolcan)
 			Fuel.StopFueling()
 		end
 
-        Wait(Config.Refill.tick)
+        Wait(isPetrolcan and Config.Refill.tick or tickRate)
     end
 
     if isPetrolcan then
         ClearPedTasks(MSK.Player.playerPed)
         TriggerServerEvent('msk_fuel:updateFuelCan', durability, fuelAmount, NetworkGetNetworkIdFromEntity(vehicle))
     else
-        TriggerServerEvent('msk_fuel:payFuelPrice', fuelAmount, NetworkGetNetworkIdFromEntity(vehicle))
+        -- The pump coords tell the server which station sold the fuel, so the
+        -- money and the liters land at the station the player really used.
+        TriggerServerEvent('msk_fuel:payFuelPrice', fuelAmount, NetworkGetNetworkIdFromEntity(vehicle), fuelType, pumpCoords)
     end
 end
 

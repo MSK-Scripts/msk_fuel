@@ -8,6 +8,15 @@ PayPrice = function(playerId, price)
     Config.Notification(playerId, Translate('not_enough_money'), 'error')
 end
 
+-- Counterpart to PayPrice: pays money out to a player (station sale, account
+-- withdrawal). Nothing to do for zero or negative amounts.
+AddMoney = function(playerId, amount)
+    amount = math.floor(tonumber(amount) or 0)
+    if amount <= 0 then return false end
+
+    return exports.ox_inventory:AddItem(playerId, 'money', amount) and true or false
+end
+
 GetVehicleFromNetId = function(netId)
     local vehicle = NetworkGetEntityFromNetworkId(netId)
 
@@ -136,36 +145,48 @@ IsPlayerNearVehicle = function(playerId, vehicle, maxDist)
 end
 exports('IsPlayerNearVehicle', IsPlayerNearVehicle)
 
+-- Coerces a client-supplied coordinate into a vector3, or nil if it is not one.
+ToCoords = function(coords)
+    if type(coords) == 'vector3' then return coords end
+    if type(coords) ~= 'table' then return nil end
+
+    local x, y, z = tonumber(coords.x), tonumber(coords.y), tonumber(coords.z)
+    if not (x and y and z) then return nil end
+
+    return vector3(x + 0.0, y + 0.0, z + 0.0)
+end
+
 -- Serverside anti-exploit check (S2): is the player actually standing at a fuel station?
 -- 1. The player must be at the reported pump coords (blocks remote triggering).
--- 2. The reported coords must be near a known station zone (blocks fake coords).
+-- 2. The reported coords must fall inside a known station zone (blocks fake coords).
+--
+-- Since v1.2.0 the zones come from the station definitions, so a station the
+-- admin moves or deletes immediately stops accepting petrolcan business.
 IsPlayerNearFuelStation = function(playerId, coords)
-    local ped = GetPlayerPed(playerId)
-    if not ped or ped == 0 then return false end
-
-    if type(coords) ~= 'vector3' and type(coords) ~= 'table' then return false end
-    local x, y, z = tonumber(coords.x), tonumber(coords.y), tonumber(coords.z)
-    if not x or not y or not z then return false end
-    coords = vector3(x, y, z)
-
-    local pedCoords = GetEntityCoords(ped)
-    if #(pedCoords - coords) > Config.MaxStationDistance then return false end
-
-    for i = 1, #Config.FuelStations do
-        if #(coords - Config.FuelStations[i]) <= Config.FuelStationZoneDistance then
-            return true
-        end
-    end
-
-    for _, v in pairs(Config.CustomFuelStations) do
-        if #(coords - vector3(v.coords.x, v.coords.y, v.coords.z)) <= Config.FuelStationZoneDistance then
-            return true
-        end
-    end
-
-    return false
+    local stationId = ResolveStation(playerId, coords, Config.MaxStationDistance)
+    return stationId ~= nil
 end
 exports('IsPlayerNearFuelStation', IsPlayerNearFuelStation)
+
+---Resolves which station a player is doing business with.
+---Fails (returns nil) when the player is not actually at the reported pump, so
+---a spoofed coordinate cannot pick a cheaper station on the other side of the map.
+---@param playerId number
+---@param coords table|vector3   pump coords reported by the client
+---@param maxDist number         how far the player may be from that pump
+---@return string|nil stationId, table|nil def
+ResolveStation = function(playerId, coords, maxDist)
+    local ped = GetPlayerPed(playerId)
+    if not ped or ped == 0 then return nil end
+
+    coords = ToCoords(coords)
+    if not coords then return nil end
+
+    if #(GetEntityCoords(ped) - coords) > (maxDist or Config.MaxStationDistance) then return nil end
+
+    return Stations.Find(coords)
+end
+exports('ResolveStation', ResolveStation)
 
 ----------------------------------------------------------------
 -- Rate limiting (S4)

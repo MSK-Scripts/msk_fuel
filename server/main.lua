@@ -1,10 +1,52 @@
+----------------------------------------------------------------
+-- How much fuel a full petrolcan holds, derived from the same two config values
+-- the fueling loop uses, so the can never carries more liters than it can pour.
+----------------------------------------------------------------
+local function petrolcanLiters(durability)
+    local tick = tonumber(Config.Petrolcan.durabilityTick) or 1.3
+    if tick <= 0 then return 0.0 end
+
+    return (math.max(0, tonumber(durability) or 0) / tick) * (tonumber(Config.Refill.value) or 0.5)
+end
+
+-- Takes the liters out of the station tank and books the money. A station that
+-- cannot deliver the full amount blocks the sale outright: a half-filled can is
+-- worse than a refused one, because the player already paid the full price.
+---@return boolean ok
+local function sellPetrolcanFuel(playerId, stationId, liters, price, kind)
+    if not stationId then return true end
+
+    local def = Stations.Get(stationId)
+
+    -- Petrolcans hold petrol. A station selling only kerosene (an airport tank)
+    -- has nothing to fill them with.
+    if not Stations.SellsFuelType(def, 'gas') then
+        Config.Notification(playerId, Translate('station_no_petrolcan'), 'error')
+        return false
+    end
+
+    if not Stock.Has(stationId, 'gas', liters) then
+        Config.Notification(playerId, Translate('station_sold_out', Translate('gas')), 'error')
+        return false
+    end
+
+    Stock.Consume(stationId, 'gas', liters)
+    Account.BookSale(stationId, price, { kind = kind, liters = liters })
+    Stations.MarkDirty()
+
+    return true
+end
+
 RegisterNetEvent('msk_fuel:refillCan', function(isRefill, coords)
     local playerId = source
 
     if not CheckRateLimit(playerId, 'refillCan', 500) then return end
 
-    -- Make sure the player is actually at a fuel station (anti-exploit)
-    if not IsPlayerNearFuelStation(playerId, coords) then return end
+    -- Make sure the player is actually at a fuel station (anti-exploit). The
+    -- station is resolved from the same check, so the money and the fuel end up
+    -- at the station the player is really standing at.
+    local stationId = ResolveStation(playerId, coords, Config.MaxStationDistance)
+    if not stationId then return end
 
     if isRefill then
         local item = exports.ox_inventory:GetCurrentWeapon(playerId)
@@ -13,6 +55,13 @@ RegisterNetEvent('msk_fuel:refillCan', function(isRefill, coords)
 
         -- Price is determined serverside, never trust the client
         local price = Config.Petrolcan.refillPrice
+        local missing = 100 - math.max(0, tonumber(item.metadata.ammo) or 0)
+
+        if missing <= 0 then
+            return Config.Notification(playerId, Translate('petrolcan_already_full'), 'info')
+        end
+
+        if not sellPetrolcanFuel(playerId, stationId, petrolcanLiters(missing), price, 'petrolcan_refill') then return end
 
         -- PayPrice removes the money and notifies on insufficient funds
         if not PayPrice(playerId, price) then return end
@@ -32,6 +81,9 @@ RegisterNetEvent('msk_fuel:refillCan', function(isRefill, coords)
             return Config.Notification(playerId, Translate('cannot_carry_petrolcan'), 'error')
         end
 
+        -- A bought can comes full, so it costs the station a full can of fuel.
+        if not sellPetrolcanFuel(playerId, stationId, petrolcanLiters(100), price, 'petrolcan_buy') then return end
+
         -- PayPrice removes the money and notifies on insufficient funds
         if not PayPrice(playerId, price) then return end
 
@@ -41,7 +93,7 @@ RegisterNetEvent('msk_fuel:refillCan', function(isRefill, coords)
     end
 end)
 
-RegisterNetEvent('msk_fuel:payFuelPrice', function(fuel, netId)
+RegisterNetEvent('msk_fuel:payFuelPrice', function(fuel, netId, fuelType, pumpCoords)
     local playerId = source
 
     if not CheckRateLimit(playerId, 'payFuelPrice', 500) then return end
@@ -64,11 +116,63 @@ RegisterNetEvent('msk_fuel:payFuelPrice', function(fuel, netId)
     local addedFuel = fuel - currentFuel
     if addedFuel <= 0 then return end
 
+    ----------------------------------------------------------------
+    -- Which station is this? The pump the player used decides the price and
+    -- whose tank the fuel comes out of. The nozzle can be dragged as far as the
+    -- vehicle type allows, so that is the distance the pump coords are checked
+    -- against, not the much tighter petrolcan radius.
+    ----------------------------------------------------------------
+    local stationId, def = ResolveStation(playerId, pumpCoords, GetMaxFuelingDistance(vehicle))
+    local pumpAt = ToCoords(pumpCoords)
+    local pricePerLiter = Pricing.Fallback()
+
+    if type(fuelType) ~= 'string' or not AdminPerms.IsFuelType(fuelType) then
+        fuelType = Config.DefaultFuelType
+    end
+
+    if stationId then
+        -- A station that does not sell this fuel type never had a pump for it.
+        if not Stations.SellsFuelType(def, fuelType) then return end
+
+        -- A pump worn down past the failure threshold serves nobody until it is
+        -- repaired. The client greys it out as well; this is the check that
+        -- counts.
+        if pumpAt and Maintenance.IsBroken(stationId, pumpAt) then
+            return Config.Notification(playerId, Translate('pump_broken'), 'error')
+        end
+
+        local available = Stock.Get(stationId, fuelType)
+
+        if available <= 0 then
+            return Config.Notification(playerId, Translate('station_sold_out', Translate(fuelType)), 'error')
+        end
+
+        -- Empty tank in the middle of fueling: the player gets (and pays for)
+        -- what was left, not what the client asked for.
+        if addedFuel > available then
+            addedFuel = available
+            fuel = currentFuel + addedFuel
+        end
+
+        pricePerLiter = Pricing.Get(stationId, fuelType)
+    end
+
     -- Recalculate the price serverside based on the actually added fuel
-    local price = math.ceil(addedFuel / Config.Refill.value) * Config.Refill.price
+    local price = math.ceil(addedFuel * pricePerLiter)
 
     -- PayPrice removes the money and notifies on insufficient funds
     if not PayPrice(playerId, price) then return end
+
+    if stationId then
+        Stock.Consume(stationId, fuelType, addedFuel)
+        Account.BookSale(stationId, price, { kind = 'refuel', fuelType = fuelType, liters = addedFuel })
+
+        -- Every sale is a chance for the pump to wear a little. This also
+        -- registers a pump the first time it is ever used.
+        if pumpAt then Maintenance.Wear(stationId, pumpAt) end
+
+        Stations.MarkDirty()
+    end
 
     SetVehicleFuel(netId, fuel)
 

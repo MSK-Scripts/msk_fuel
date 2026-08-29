@@ -49,14 +49,17 @@ Config.MaxFuelingDistance = {
 }
 
 -- Maximum distance (in units) a player may be away from a fuel station to buy/refill a petrolcan.
--- The reported pump coords must also be within Config.FuelStationZoneDistance of a known station.
+-- The reported pump coords must also fall inside the zone of a known station
+-- (see the per-station `radius` in config.stations.lua).
 Config.MaxStationDistance = 5.0
-Config.FuelStationZoneDistance = 60.0
 
 Config.Refill = {
     tick = 250, -- Fuel Tick Rate (every 250 miliseconds)
     value = 0.50, -- Fuel Refill Value (adds 0.50% every refillTick miliseconds)
-    price = 5, -- Price per Tick Rate (costs $5 every 250 miliseconds)
+    -- Fallback price per tick, only used for pumps that do not belong to any
+    -- station zone. Everywhere else the station's price per liter applies
+    -- (see config.business.lua and the admin dashboard).
+    price = 5,
 }
 
 Config.Petrolcan = {
@@ -144,15 +147,17 @@ Config.FuelStationTypes = {
     [`sf_prop_sf_air_generator_01`] = {'electric'},
 }
 
--- Spawns the given Fuel Pump on the given coords
+-- Spawns the given Fuel Pump on the given coords.
+-- Blips are no longer configured here: every one of these props stands inside a
+-- station zone from config.stations.lua and the station carries the blip.
 Config.CustomFuelStations = {
-    {model = `prop_gas_pump_1c`, coords = vector4(166.44, 6461.82, 31.2, 176.24), showBlip = false}, -- Paleto Bay near 3021
+    {model = `prop_gas_pump_1c`, coords = vector4(166.44, 6461.82, 31.2, 176.24)}, -- Paleto Bay near 3021 (station pb_04)
 
-    {model = `prop_ind_deiseltank`, coords = vector4(1761.61, 3228.0, 42.52, 232.38), showBlip = true}, -- Grand Senora Desert
-    {model = `prop_generator_01a`, coords = vector4(1787.35, 3327.75, 41.4, 303.47), showBlip = false}, -- Grand Senora Desert
+    {model = `prop_ind_deiseltank`, coords = vector4(1761.61, 3228.0, 42.52, 232.38)}, -- Grand Senora Desert (station bc_11)
+    {model = `prop_generator_01a`, coords = vector4(1787.35, 3327.75, 41.4, 303.47)}, -- Grand Senora Desert (station bc_10)
 
-    {model = `prop_ind_deiseltank`, coords = vector4(-973.09, -3411.08, 13.84, 237.21), showBlip = true}, -- LS International Airport
-    {model = `prop_ind_deiseltank`, coords = vector4(-1017.03, -3385.64, 13.84, 237.21), showBlip = true}, -- LS International Airport
+    {model = `prop_ind_deiseltank`, coords = vector4(-973.09, -3411.08, 13.84, 237.21)}, -- LS International Airport (station lsia)
+    {model = `prop_ind_deiseltank`, coords = vector4(-1017.03, -3385.64, 13.84, 237.21)}, -- LS International Airport (station lsia)
 }
 ----------------------------------------------------------------
 -- Vehicle that acts as a fuel station
@@ -197,41 +202,10 @@ Config.FuelModels = {
     `sf_prop_sf_air_generator_01`, -- https://forge.plebmasters.de/objects/sf_prop_sf_air_generator_01
 }
 ----------------------------------------------------------------
--- This is only for Blips
-Config.FuelStations = {
-    -- Los Santos
-    vector3(-71.28, -1761.16, 29.48),
-    vector3(264.74, -1260.98, 29.18),
-    vector3(1208.66, -1402.64, 35.22),
-    vector3(818.83, -1029.89, 26.17),
-    vector3(1181.27, -329.57, 69.18),
-    vector3(621.07, 269.52, 103.0),
-    vector3(-1437.58, -276.38, 46.21),
-    vector3(-2096.6, -318.15, 13.02),
-    vector3(-1799.03, 803.11, 138.4),
-    vector3(-524.84, -1211.02, 18.18),
-    vector3(2581.56, 361.65, 108.46),
-    vector3(-319.84, -1471.77, 30.55),
-    vector3(175.31, -1561.73, 29.26),
-    vector3(-723.72, -935.51, 19.21),
-
-    -- Blaine County
-    vector3(-2555.31, 2334.01, 33.06),
-    vector3(49.69, 2778.33, 57.88),
-    vector3(264.15, 2607.05, 44.95),
-    vector3(1207.56, 2660.2, 37.81),
-    vector3(2538.0, 2593.83, 37.94),
-    vector3(2680.01, 3265.0, 55.24),
-    vector3(2005.07, 3774.33, 32.18),
-    vector3(1688.42, 4930.85, 42.08),
-    vector3(1039.34, 2671.78, 39.55),
-    vector3(1785.58, 3330.47, 41.38),
-
-    -- Paleto Bay
-    vector3(1702.79, 6416.86, 33.64),
-    vector3(179.94, 6602.6, 31.85),
-    vector3(-93.98, 6420.1, 31.48),
-}
+-- Fuel stations live in `config.stations.lua` now. They are no longer plain
+-- blip coordinates but named entities with a zone, a stock and (once bought) an
+-- owner, so the list moved out of this file. Add or edit them there, or in the
+-- admin dashboard once the server has seeded them into the database.
 ----------------------------------------------------------------
 exports('Config', function()
     return Config

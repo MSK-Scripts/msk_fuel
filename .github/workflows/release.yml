@@ -33,7 +33,17 @@ jobs:
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Gefundene Version: $VERSION"
+
+          # Alles mit Bindestrich ist ein Pre-Release (1.2.0-beta.1). Das darf
+          # nicht als "latest" veroeffentlicht werden, sonst laedt jeder Kunde
+          # ueber den Download-Link eine Beta herunter.
+          if [[ "$VERSION" == *-* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "Gefundene Version: $VERSION (Pre-Release)"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "Gefundene Version: $VERSION"
+          fi
 
       - name: Check if release already exists
         id: check
@@ -69,10 +79,13 @@ jobs:
           rsync -a \
             --exclude='.git' \
             --exclude='.github' \
+            --exclude='.claude' \
             --exclude='build' \
             --exclude='release_notes.md' \
             --exclude='Konzept.md' \
             --exclude='CFX_POST.md' \
+            --exclude='web/node_modules' \
+            --exclude='web/tsconfig.tsbuildinfo' \
             ./ build/msk_fuel/
           cd build
           zip -r "../msk_fuel-${{ steps.version.outputs.tag }}.zip" msk_fuel
@@ -85,4 +98,5 @@ jobs:
           name: ${{ steps.version.outputs.tag }}
           body_path: release_notes.md
           files: msk_fuel-${{ steps.version.outputs.tag }}.zip
-          make_latest: true
+          prerelease: ${{ steps.version.outputs.prerelease == 'true' }}
+          make_latest: ${{ steps.version.outputs.prerelease != 'true' }}

@@ -1,105 +1,119 @@
-registerTargetFuelStations = function()
+-- The four fuel options are identical apart from the fuel type, so they are
+-- built in a loop. Before v1.2.0 each type was written out by hand at both
+-- registration sites, which meant every change to the fueling flow had to be
+-- made eight times.
+local FUEL_TYPES = { 'gas', 'diesel', 'electric', 'kerosin' }
+
+local buildFuelOptions = function(distance)
     local options = {}
 
-    options[#options + 1] = {
-        name = 'fuel_gas',
-        label = Translate('fuel_gas'),
-        distance = 2.0,
-        icon = 'fas fa-gas-pump',
-        canInteract = function(entity)
-            if State.Player.Get('nozzle') or State.Player.Get('rope') then
-                return false
-            end
+    for _, fuelType in ipairs(FUEL_TYPES) do
+        options[#options + 1] = {
+            name = 'fuel_' .. fuelType,
+            label = Translate('fuel_' .. fuelType),
+            distance = distance,
+            icon = 'fas fa-gas-pump',
+            canInteract = function(entity)
+                if State.Player.Get('nozzle') or State.Player.Get('rope') then
+                    return false
+                end
 
-            if not IsFuelTypeAtFuelStation(entity, 'gas') then
-                return false
-            end
+                if not IsFuelTypeAtFuelStation(entity, fuelType) then
+                    return false
+                end
 
-            return true
-        end,
-        onSelect = function(data)
-            if GetPlayerMoney() >= Config.Refill.price then
-                Fuel.GrabNozzle(data, 'gas')
-            else
-                Config.Notification(nil, Translate('not_enough_money'), 'error')
+                -- An empty tank blocks that fuel type at that station. The
+                -- server refuses the sale as well, this only saves the player
+                -- from grabbing a nozzle that cannot deliver anything.
+                if not Station.HasStock(entity, fuelType) then
+                    return false
+                end
+
+                -- Same for a pump that is worn out: it has to be repaired first.
+                if Station.IsPumpBroken(entity) then
+                    return false
+                end
+
+                return true
+            end,
+            onSelect = function(data)
+                local pricePerLiter = Station.PricePerLiter(data.entity, fuelType)
+
+                -- Enough for at least one tick, otherwise fueling would stop
+                -- before it started.
+                if GetPlayerMoney() < math.ceil(pricePerLiter * Config.Refill.value) then
+                    return Config.Notification(nil, Translate('not_enough_money'), 'error')
+                end
+
+                local _, station = Station.From(data.entity)
+
+                Config.Notification(nil, Translate('fuel_price_info',
+                    Translate(fuelType), MSK.Round(pricePerLiter, 2), station and station.label or Translate('fuel_station_blip')), 'info')
+
+                Fuel.GrabNozzle(data, fuelType)
             end
-        end
+        }
+    end
+
+    return options
+end
+
+-- Buying and managing a station. Both hang off the pump, because the pump is
+-- what tells the server which station the player is standing at.
+local buildBusinessOptions = function(distance)
+    return {
+        {
+            name = 'station_buy',
+            label = Translate('station_buy'),
+            distance = distance,
+            icon = 'fas fa-file-signature',
+            canInteract = function(entity)
+                local id, station = Station.From(entity)
+                if not id or not station then return false end
+
+                return station.purchasable == true and not station.owned
+            end,
+            onSelect = function(data)
+                OwnerNui.Buy(data.entity)
+            end
+        },
+        {
+            name = 'station_public_delivery',
+            label = Translate('delivery_public_take'),
+            distance = distance,
+            icon = 'fas fa-truck',
+            canInteract = function(entity)
+                if DeliveryRun.active then return false end
+
+                local _, station = Station.From(entity)
+
+                return station ~= nil and station.publicDelivery == true
+            end,
+            onSelect = function(data)
+                DeliveryRun.TakePublicJob(data.entity)
+            end
+        },
+        {
+            name = 'station_manage',
+            label = Translate('station_manage'),
+            distance = distance,
+            icon = 'fas fa-briefcase',
+            canInteract = function(entity)
+                return Station.CanManage((Station.From(entity)))
+            end,
+            onSelect = function(data)
+                OwnerNui.Open(data.entity)
+            end
+        },
     }
+end
 
-    options[#options + 1] = {
-        name = 'fuel_diesel',
-        label = Translate('fuel_diesel'),
-        distance = 2.0,
-        icon = 'fas fa-gas-pump',
-        canInteract = function(entity)
-            if State.Player.Get('nozzle') or State.Player.Get('rope') then
-                return false
-            end
+registerTargetFuelStations = function()
+    local options = buildFuelOptions(2.0)
 
-            if not IsFuelTypeAtFuelStation(entity, 'diesel') then
-                return false
-            end
-
-            return true
-        end,
-        onSelect = function(data)
-            if GetPlayerMoney() >= Config.Refill.price then
-                Fuel.GrabNozzle(data, 'diesel')
-            else
-                Config.Notification(nil, Translate('not_enough_money'), 'error')
-            end
-        end
-    }
-
-    options[#options + 1] = {
-        name = 'fuel_electric',
-        label = Translate('fuel_electric'),
-        distance = 2.0,
-        icon = 'fas fa-gas-pump',
-        canInteract = function(entity)
-            if State.Player.Get('nozzle') or State.Player.Get('rope') then
-                return false
-            end
-
-            if not IsFuelTypeAtFuelStation(entity, 'electric') then
-                return false
-            end
-
-            return true
-        end,
-        onSelect = function(data)
-            if GetPlayerMoney() >= Config.Refill.price then
-                Fuel.GrabNozzle(data, 'electric')
-            else
-                Config.Notification(nil, Translate('not_enough_money'), 'error')
-            end
-        end
-    }
-
-    options[#options + 1] = {
-        name = 'fuel_kerosin',
-        label = Translate('fuel_kerosin'),
-        distance = 2.0,
-        icon = 'fas fa-gas-pump',
-        canInteract = function(entity)
-            if State.Player.Get('nozzle') or State.Player.Get('rope') then
-                return false
-            end
-
-            if not IsFuelTypeAtFuelStation(entity, 'kerosin') then
-                return false
-            end
-
-            return true
-        end,
-        onSelect = function(data)
-            if GetPlayerMoney() >= Config.Refill.price then
-                Fuel.GrabNozzle(data, 'kerosin')
-            else
-                Config.Notification(nil, Translate('not_enough_money'), 'error')
-            end
-        end
-    }
+    for _, option in ipairs(buildBusinessOptions(2.0)) do
+        options[#options + 1] = option
+    end
 
     if Config.Petrolcan.enable then
         options[#options + 1] = {
@@ -107,8 +121,13 @@ registerTargetFuelStations = function()
             label = Translate('petrolcan_buy'),
             distance = 2.0,
             icon = 'fas fa-faucet',
+            canInteract = function(entity)
+                -- Petrolcans are filled with petrol, so a station that sells no
+                -- petrol (or has run out of it) cannot hand one over.
+                return Station.HasStock(entity, 'gas') and not Station.IsPumpBroken(entity)
+            end,
             onSelect = function(data)
-                if GetPlayerMoney() >= Config.Petrolcan.price then    
+                if GetPlayerMoney() >= Config.Petrolcan.price then
                     Fuel.Petrolcan(data.coords)
                 else
                     Config.Notification(nil, Translate('not_enough_money'), 'error')
@@ -121,11 +140,15 @@ registerTargetFuelStations = function()
             label = Translate('petrolcan_refill'),
             distance = 2.0,
             icon = 'fas fa-faucet',
-            canInteract = function(entity)    
-                return GetSelectedPedWeapon(PlayerPedId()) == `WEAPON_PETROLCAN`
+            canInteract = function(entity)
+                if GetSelectedPedWeapon(PlayerPedId()) ~= `WEAPON_PETROLCAN` then
+                    return false
+                end
+
+                return Station.HasStock(entity, 'gas') and not Station.IsPumpBroken(entity)
             end,
             onSelect = function(data)
-                if GetPlayerMoney() >= Config.Petrolcan.refillPrice then    
+                if GetPlayerMoney() >= Config.Petrolcan.refillPrice then
                     Fuel.Petrolcan(data.coords, true)
                 else
                     Config.Notification(nil, Translate('not_enough_money'), 'error')
@@ -246,107 +269,11 @@ end
 registerTargetFuelStations()
 
 registerModelFuelStations = function()
-    local options = {}
+    local options = buildFuelOptions(3.0)
 
-    options[#options + 1] = {
-        name = 'fuel_gas',
-        label = Translate('fuel_gas'),
-        distance = 3.0,
-        icon = 'fas fa-gas-pump',
-        canInteract = function(entity)
-            if State.Player.Get('nozzle') or State.Player.Get('rope') then
-                return false
-            end
-
-            if not IsFuelTypeAtFuelStation(entity, 'gas') then
-                return false
-            end
-
-            return true
-        end,
-        onSelect = function(data)
-            if GetPlayerMoney() >= Config.Refill.price then
-                Fuel.GrabNozzle(data, 'gas')
-            else
-                Config.Notification(nil, Translate('not_enough_money'), 'error')
-            end
-        end
-    }
-
-    options[#options + 1] = {
-        name = 'fuel_diesel',
-        label = Translate('fuel_diesel'),
-        distance = 3.0,
-        icon = 'fas fa-gas-pump',
-        canInteract = function(entity)
-            if State.Player.Get('nozzle') or State.Player.Get('rope') then
-                return false
-            end
-
-            if not IsFuelTypeAtFuelStation(entity, 'diesel') then
-                return false
-            end
-
-            return true
-        end,
-        onSelect = function(data)
-            if GetPlayerMoney() >= Config.Refill.price then
-                Fuel.GrabNozzle(data, 'diesel')
-            else
-                Config.Notification(nil, Translate('not_enough_money'), 'error')
-            end
-        end
-    }
-
-    options[#options + 1] = {
-        name = 'fuel_electric',
-        label = Translate('fuel_electric'),
-        distance = 3.0,
-        icon = 'fas fa-gas-pump',
-        canInteract = function(entity)
-            if State.Player.Get('nozzle') or State.Player.Get('rope') then
-                return false
-            end
-
-            if not IsFuelTypeAtFuelStation(entity, 'electric') then
-                return false
-            end
-
-            return true
-        end,
-        onSelect = function(data)
-            if GetPlayerMoney() >= Config.Refill.price then
-                Fuel.GrabNozzle(data, 'electric')
-            else
-                Config.Notification(nil, Translate('not_enough_money'), 'error')
-            end
-        end
-    }
-
-    options[#options + 1] = {
-        name = 'fuel_kerosin',
-        label = Translate('fuel_kerosin'),
-        distance = 3.0,
-        icon = 'fas fa-gas-pump',
-        canInteract = function(entity)
-            if State.Player.Get('nozzle') or State.Player.Get('rope') then
-                return false
-            end
-
-            if not IsFuelTypeAtFuelStation(entity, 'kerosin') then
-                return false
-            end
-
-            return true
-        end,
-        onSelect = function(data)
-            if GetPlayerMoney() >= Config.Refill.price then
-                Fuel.GrabNozzle(data, 'kerosin')
-            else
-                Config.Notification(nil, Translate('not_enough_money'), 'error')
-            end
-        end
-    }
+    for _, option in ipairs(buildBusinessOptions(3.0)) do
+        options[#options + 1] = option
+    end
 
     -- If the nozzle is attached to a player to return it to fuel station
     options[#options + 1] = {

@@ -1,0 +1,621 @@
+// Dashboard translations. This is a SECOND catalogue next to the Lua
+// translation.lua: that one feeds the in-game notifications, this one the
+// dashboard. A new language has to be added in both, otherwise the dashboard
+// silently falls back while the game texts are already translated.
+
+export const LOCALES = ['de', 'en'] as const
+export type Locale = (typeof LOCALES)[number]
+
+const de = {
+  title: 'MSK Fuel',
+  subtitle: 'Tankstellen-Verwaltung',
+  close: 'Schließen',
+  save: 'Speichern',
+  cancel: 'Abbrechen',
+  delete: 'Löschen',
+  create: 'Anlegen',
+  edit: 'Bearbeiten',
+  confirm: 'Bestätigen',
+  saved: 'Gespeichert.',
+  loading: 'Lade...',
+
+  tab_stations: 'Stationen',
+  tab_market: 'Preise & Markt',
+  tab_settings: 'Einstellungen',
+  tab_permissions: 'Rechte',
+
+  // Stations
+  stations_empty: 'Es gibt noch keine Tankstellen.',
+  station_new: 'Neue Tankstelle',
+  station_id: 'ID',
+  station_id_hint: 'Nur Buchstaben, Ziffern, Bindestrich und Unterstrich. Nach dem Anlegen nicht mehr änderbar.',
+  station_label: 'Name',
+  station_coords: 'Zonen-Mittelpunkt',
+  station_radius: 'Zonen-Radius',
+  station_blip: 'Blip auf der Karte anzeigen',
+  station_fuelTypes: 'Angebotene Spritarten',
+  station_purchasable: 'Kann von Spielern gekauft werden',
+  station_purchasePrice: 'Kaufpreis',
+  station_capacity: 'Tankgröße',
+  station_use_position: 'Meine Position übernehmen',
+  station_owner: 'Besitzer',
+  station_no_owner: 'Kein Besitzer',
+  station_balance: 'Firmenkonto',
+  station_clear_owner: 'Besitzer entziehen',
+  station_clear_owner_confirm:
+    'Der Station wird der Besitzer entzogen und sie steht wieder zum Kauf. Das Guthaben auf dem Firmenkonto bleibt erhalten.',
+  station_delete_confirm:
+    'Die Tankstelle wird mit ihrem Lager und ihrer Buchungshistorie gelöscht. Das lässt sich nicht rückgängig machen.',
+
+  // Stock
+  stock: 'Lager',
+  stock_level: 'Füllstand',
+  stock_capacity: 'Kapazität',
+  stock_price: 'Preis',
+  stock_price_mode: 'Preismodus',
+  stock_mode_dynamic: 'Dynamisch',
+  stock_mode_fixed: 'Fest',
+  stock_fixed_price: 'Festpreis',
+  stock_save: 'Lager speichern',
+  stock_save_price: 'Preis speichern',
+  stock_fill: 'Volltanken',
+  stock_empty: 'Leeren',
+  stock_sold_out: 'Ausverkauft',
+
+  // Market
+  market_base: 'Basispreise pro Liter',
+  market_base_hint:
+    'Der serverweite Ausgangspreis. Jede Station mit dynamischem Preis rechnet von hier aus hoch oder runter.',
+  market_limits: 'Preisgrenzen',
+  market_limits_hint: 'Kein Stationspreis kann diese Grenzen verlassen, auch kein selbst gesetzter Festpreis.',
+  market_min: 'Minimum',
+  market_max: 'Maximum',
+  market_params: 'Marktparameter',
+  market_kStock: 'Lager-Einfluss (kStock)',
+  market_kDemand: 'Nachfrage-Einfluss (kDemand)',
+  market_demandNorm: 'Normale Nachfrage (Liter)',
+  market_drift: 'Basispreis-Drift pro Takt',
+  market_decay: 'Nachfrage-Abklingen pro Takt',
+  market_tick: 'Takt (Minuten)',
+  market_capacity: 'Standard-Tankgröße',
+  market_capacity_hint: 'Gilt für Stationen, die keine eigene Tankgröße gesetzt haben.',
+
+  // Settings
+  settings_general: 'Allgemein',
+  settings_locale: 'Sprache',
+  settings_debug: 'Debug-Ausgaben',
+  settings_versionchecker: 'Versionsprüfung',
+  settings_command: 'Befehl für dieses Dashboard',
+  settings_theme: 'Farben',
+  theme_reset: 'Farben zurücksetzen',
+  settings_economy: 'Kauf und Verkauf',
+  settings_purchase_price: 'Standard-Kaufpreis',
+  settings_purchase_price_hint: 'Gilt für Stationen ohne eigenen Kaufpreis.',
+  settings_refund: 'Rückzahlung beim Verkauf',
+  settings_refund_hint: 'Anteil des Kaufpreises, den ein Besitzer zurückbekommt. 0,6 sind 60 Prozent.',
+  settings_max_balance: 'Maximales Firmenkonto',
+  settings_max_balance_hint: '0 bedeutet keine Grenze.',
+  settings_neutral: 'Herrenlose Stationen',
+  settings_neutral_hint: 'Was mit dem Geld passiert, das an einer Station ohne Besitzer bezahlt wird.',
+  settings_neutral_mode: 'Verwendung',
+  settings_neutral_void: 'Verfällt',
+  settings_neutral_society: 'Auf ein Firmenkonto',
+  settings_neutral_society_name: 'Name des Firmenkontos',
+
+  // Permissions
+  perms_groups: 'Gruppen',
+  perms_matrix: 'Rechte',
+  perms_add_group: 'Gruppe hinzufügen',
+  perms_group_name: 'Gruppenname',
+  perms_dashboard_groups: 'Gruppen mit Dashboard-Zugriff',
+  perms_dashboard_hint:
+    'group.admin darf immer, group.user nie. Wer hier nicht steht, kann das Dashboard nicht öffnen, selbst mit Rechten.',
+  perms_protected: 'Diese Gruppe hat immer alle Rechte und lässt sich nicht bearbeiten.',
+  perms_delete_confirm: 'Die Gruppe verliert alle Rechte an diesem Dashboard.',
+
+  // Permission keys
+  'perm_station.view': 'Stationen ansehen',
+  'perm_station.create': 'Stationen anlegen',
+  'perm_station.edit': 'Stationen bearbeiten',
+  'perm_station.delete': 'Stationen löschen',
+  'perm_station.owner': 'Besitzer entziehen',
+  'perm_stock.manage': 'Lager verwalten',
+  'perm_market.manage': 'Preise und Markt verwalten',
+  'perm_settings.manage': 'Einstellungen verwalten',
+  'perm_permissions.manage': 'Rechte verwalten',
+
+  // Fuel types
+  fuel_gas: 'Benzin',
+  fuel_diesel: 'Diesel',
+  fuel_kerosin: 'Kerosin',
+  fuel_electric: 'Elektro',
+
+  // Errors
+  err_no_permission: 'Dafür fehlt dir die Berechtigung.',
+  err_bad_input: 'Die Eingabe ist unvollständig oder ungültig.',
+  err_bad_id: 'Die ID darf nur Buchstaben, Ziffern, Bindestrich und Unterstrich enthalten.',
+  err_bad_coords: 'Die Koordinaten sind ungültig.',
+  err_bad_fueltypes: 'Wähle mindestens eine Spritart.',
+  err_bad_fueltype: 'Unbekannte Spritart.',
+  err_not_found: 'Diese Tankstelle gibt es nicht (mehr).',
+  err_no_tank: 'Für diese Spritart gibt es an der Station keinen Tank.',
+  err_bad_group: 'Der Gruppenname ist ungültig.',
+  err_protected_group: 'Diese Gruppe lässt sich nicht bearbeiten.',
+  err_blacklisted_group: 'Diese Gruppe darf keine Rechte bekommen.',
+  err_no_response: 'Der Server hat nicht geantwortet.',
+  err_unknown: 'Etwas ist schiefgelaufen.',
+
+  // Owner dashboard
+  owner_subtitle: 'Dein Betrieb',
+  tab_overview: 'Übersicht',
+  tab_finance: 'Finanzen',
+  tab_prices: 'Preise',
+  tab_stock: 'Lager',
+
+  overview_today: 'Letzte 24 Stunden',
+  overview_week: 'Letzte 7 Tage',
+  overview_revenue: 'Umsatz',
+  overview_liters: 'Verkaufte Liter',
+  overview_sales: 'Tankvorgänge',
+  overview_rename: 'Station umbenennen',
+  overview_rename_hint: 'Der Name steht auf der Karte und im Dashboard.',
+  overview_sell: 'Tankstelle verkaufen',
+  overview_sell_confirm:
+    'Du verkaufst die Tankstelle zurück ans System. Du bekommst %s zurück, das Guthaben vom Firmenkonto kommt dazu. Rückgängig machen kannst du das nicht.',
+
+  finance_balance: 'Kontostand',
+  finance_deposit: 'Einzahlen',
+  finance_withdraw: 'Auszahlen',
+  finance_amount: 'Betrag',
+  finance_history: 'Buchungen',
+  finance_history_empty: 'Noch keine Buchungen.',
+  tx_sale: 'Verkauf',
+  tx_sale_neutral: 'Verkauf (herrenlos)',
+  tx_deposit: 'Einzahlung',
+  tx_withdraw: 'Auszahlung',
+  tx_purchase: 'Kauf der Station',
+  tx_sold: 'Verkauf der Station',
+  tx_sell_payout: 'Auszahlung beim Verkauf',
+  tx_owner_cleared: 'Besitzer entzogen',
+  tx_petrolcan_buy: 'Kanister verkauft',
+  tx_petrolcan_refill: 'Kanister gefüllt',
+
+  prices_hint:
+    'Dynamisch heißt: der Preis steigt, wenn dein Lager leer wird oder viel getankt wird. Fest heißt: dein Preis gilt, solange er in den Grenzen liegt.',
+  prices_base: 'Basispreis',
+  prices_current: 'Aktueller Preis',
+  prices_range: 'Erlaubt',
+
+  stock_hint_owner:
+    'Nachschub bestellen kommt in einem späteren Update. Bis dahin füllen die Lieferaufträge und der Admin die Tanks.',
+
+  err_too_far_away: 'Dafür musst du an der Tankstelle stehen.',
+  err_already_owned: 'Diese Tankstelle gehört bereits jemandem.',
+  err_not_purchasable: 'Diese Tankstelle steht nicht zum Verkauf.',
+  err_no_identifier: 'Dein Spielerprofil konnte nicht gelesen werden.',
+  err_not_enough_money: 'Du hast nicht genug Geld dabei.',
+  err_not_enough_balance: 'Auf dem Firmenkonto ist nicht genug Geld.',
+  err_bad_amount: 'Gib einen Betrag größer als null ein.',
+  err_bad_label: 'Der Name muss zwischen 1 und 60 Zeichen lang sein.',
+  err_booking_failed: 'Die Buchung ist fehlgeschlagen.',
+  err_too_fast: 'Einen Moment noch.',
+
+  // Staff
+  tab_staff: 'Mitarbeiter',
+  tab_ranks: 'Ränge',
+  staff_empty: 'Diese Tankstelle hat noch keine Mitarbeiter.',
+  staff_hire: 'Einstellen',
+  staff_fire: 'Entlassen',
+  staff_fire_confirm: 'Der Mitarbeiter verliert alle Rechte an dieser Tankstelle.',
+  staff_online: 'Online',
+  staff_offline: 'Offline',
+  staff_rank: 'Rang',
+  staff_pick_player: 'Spieler auswählen',
+  staff_no_players: 'Es ist niemand online, den du einstellen könntest.',
+  staff_already_employed: 'Arbeitet hier bereits',
+  staff_earnings: 'Verdient',
+  staff_deliveries: 'Lieferungen',
+  staff_liters: 'Verkaufte Liter',
+  staff_last_active: 'Zuletzt aktiv',
+  staff_never: 'Noch nie',
+  staff_stats_hint:
+    'Lieferungen und verkaufte Liter zählen ab dem Update mit den Lieferaufträgen.',
+
+  ranks_empty: 'Es gibt noch keine Ränge.',
+  ranks_new: 'Neuer Rang',
+  ranks_id: 'Kürzel',
+  ranks_id_hint: 'Nur Buchstaben, Ziffern, Bindestrich und Unterstrich. Später nicht mehr änderbar.',
+  ranks_label: 'Bezeichnung',
+  ranks_salary: 'Gehalt pro Auszahlung',
+  ranks_bonus: 'Bonus pro Lieferung',
+  ranks_perms: 'Rechte',
+  ranks_perms_owner_only: 'Rechte kann nur der Besitzer vergeben.',
+  ranks_delete_confirm: 'Der Rang wird gelöscht. Mitarbeiter mit diesem Rang musst du vorher umstufen.',
+
+  perm_manage: 'Station verwalten und umbenennen',
+  perm_hire: 'Personal und Ränge verwalten',
+  perm_set_prices: 'Preise setzen',
+  perm_order_fuel: 'Nachschub bestellen',
+  perm_withdraw: 'Geld auszahlen',
+  perm_deposit: 'Geld einzahlen',
+  perm_repair: 'Zapfsäulen reparieren',
+
+  err_bad_target: 'Diesen Spieler gibt es nicht (mehr).',
+  err_bad_rank: 'Diesen Rang gibt es nicht.',
+  err_rank_in_use: 'Diesen Rang hat noch jemand. Stufe die Mitarbeiter erst um.',
+  err_is_owner: 'Der Besitzer kann sich nicht selbst einstellen.',
+  err_not_employed: 'Diese Person arbeitet hier nicht.',
+  err_owner_only: 'Das darf nur der Besitzer.',
+
+  // Supply
+  tab_supply: 'Nachschub',
+  supply_npc: 'NPC-Fahrer',
+  supply_npc_locked:
+    'Ohne freigeschalteten NPC-Fahrer geht Nachschub nur über einen eigenen Liefer-Auftrag.',
+  supply_npc_unlock: 'Für %s freischalten',
+  supply_npc_unlocked: 'Freigeschaltet. Sofort-Nachbestellung ist möglich.',
+  supply_auto: 'Automatisch nachbestellen',
+  supply_auto_hint:
+    'Füllt die Tanks regelmäßig über den NPC-Fahrer auf, solange das Firmenkonto reicht.',
+  supply_instant: 'Sofort nachbestellen',
+  supply_instant_hint: 'Kommt sofort an, kostet aber den NPC-Aufschlag.',
+  supply_order: 'Liefer-Auftrag',
+  supply_order_hint:
+    'Günstiger, aber du fährst selbst: Fahrzeug abholen, zum Depot, Sprit laden, zurück zur Station.',
+  supply_fuel: 'Spritart',
+  supply_amount: 'Menge in Litern',
+  supply_vehicle: 'Fahrzeug',
+  supply_free: 'Platz im Tank',
+  supply_cost: 'Kosten',
+  supply_start_order: 'Auftrag starten',
+  supply_capacity: 'Fasst',
+
+  // Admin: neutral stations
+  tab_neutral: 'Herrenlose Stationen',
+  neutral_hint:
+    'Diese Stationen gehören niemandem. Hier legst du fest, ob Spieler für sie fahren dürfen und ob sie sich selbst auffüllen.',
+  neutral_none: 'Alle Stationen haben einen Besitzer.',
+  neutral_public: 'Öffentliche Liefer-Aufträge',
+  neutral_reward: 'Belohnung pro Liter',
+  neutral_amount: 'Menge pro Auftrag',
+  neutral_auto: 'Füllt sich selbst auf',
+
+  err_npc_locked: 'Der NPC-Fahrer ist für diese Station nicht freigeschaltet.',
+  err_already_unlocked: 'Der NPC-Fahrer ist bereits freigeschaltet.',
+  err_tank_full: 'Der Tank ist voll.',
+  err_bad_vehicle: 'Dieses Lieferfahrzeug gibt es nicht.',
+  err_no_depot: 'Es ist kein Sprit-Depot konfiguriert.',
+  err_delivery_running: 'Du hast bereits einen Liefer-Auftrag.',
+  err_no_public_job: 'Für diese Station gibt es keine öffentlichen Aufträge.',
+  err_station_owned: 'Diese Station hat einen Besitzer.',
+
+  // Pumps
+  tab_pumps: 'Zapfsäulen',
+  pumps_empty: 'Es wurde noch an keiner Zapfsäule getankt.',
+  pumps_hint:
+    'Eine Zapfsäule taucht hier auf, sobald zum ersten Mal an ihr getankt wurde. Mit der Zeit nutzt sie sich ab, tankt langsamer und fällt irgendwann aus.',
+  pumps_health: 'Zustand',
+  pumps_repair: 'Reparieren',
+  pumps_broken: 'Defekt',
+  pumps_worn: 'Abgenutzt',
+  pumps_fine: 'In Ordnung',
+  pumps_mechanic: 'Mechaniker',
+  pumps_mechanic_hint:
+    'Repariert abgenutzte Säulen von selbst und stellt die Kosten dem Firmenkonto in Rechnung.',
+  pumps_mechanic_unlock: 'Für %s einstellen',
+  pumps_mechanic_hired: 'Eingestellt. Säulen werden automatisch instand gehalten.',
+  pumps_disabled: 'Wartung ist auf diesem Server abgeschaltet.',
+
+  err_not_damaged: 'Diese Zapfsäule ist in Ordnung.',
+}
+
+const en: typeof de = {
+  title: 'MSK Fuel',
+  subtitle: 'Fuel station management',
+  close: 'Close',
+  save: 'Save',
+  cancel: 'Cancel',
+  delete: 'Delete',
+  create: 'Create',
+  edit: 'Edit',
+  confirm: 'Confirm',
+  saved: 'Saved.',
+  loading: 'Loading...',
+
+  tab_stations: 'Stations',
+  tab_market: 'Prices & market',
+  tab_settings: 'Settings',
+  tab_permissions: 'Permissions',
+
+  stations_empty: 'There are no fuel stations yet.',
+  station_new: 'New station',
+  station_id: 'ID',
+  station_id_hint: 'Letters, digits, dash and underscore only. Cannot be changed after creation.',
+  station_label: 'Name',
+  station_coords: 'Zone center',
+  station_radius: 'Zone radius',
+  station_blip: 'Show a blip on the map',
+  station_fuelTypes: 'Fuel types sold here',
+  station_purchasable: 'Players may buy this station',
+  station_purchasePrice: 'Purchase price',
+  station_capacity: 'Tank size',
+  station_use_position: 'Use my position',
+  station_owner: 'Owner',
+  station_no_owner: 'Unowned',
+  station_balance: 'Company account',
+  station_clear_owner: 'Remove owner',
+  station_clear_owner_confirm:
+    'The station loses its owner and goes back on the market. The money on the company account stays with it.',
+  station_delete_confirm:
+    'The station is deleted together with its stock and its transaction history. This cannot be undone.',
+
+  stock: 'Stock',
+  stock_level: 'Level',
+  stock_capacity: 'Capacity',
+  stock_price: 'Price',
+  stock_price_mode: 'Price mode',
+  stock_mode_dynamic: 'Dynamic',
+  stock_mode_fixed: 'Fixed',
+  stock_fixed_price: 'Fixed price',
+  stock_save: 'Save stock',
+  stock_save_price: 'Save price',
+  stock_fill: 'Fill up',
+  stock_empty: 'Empty',
+  stock_sold_out: 'Sold out',
+
+  market_base: 'Base price per liter',
+  market_base_hint:
+    'The server-wide starting price. Every station on a dynamic price works up or down from here.',
+  market_limits: 'Price limits',
+  market_limits_hint: 'No station price can leave these bounds, not even a manually set fixed price.',
+  market_min: 'Minimum',
+  market_max: 'Maximum',
+  market_params: 'Market parameters',
+  market_kStock: 'Stock influence (kStock)',
+  market_kDemand: 'Demand influence (kDemand)',
+  market_demandNorm: 'Normal demand (liters)',
+  market_drift: 'Base price drift per tick',
+  market_decay: 'Demand decay per tick',
+  market_tick: 'Tick (minutes)',
+  market_capacity: 'Default tank size',
+  market_capacity_hint: 'Applies to stations that do not define a tank size of their own.',
+
+  settings_general: 'General',
+  settings_locale: 'Language',
+  settings_debug: 'Debug output',
+  settings_versionchecker: 'Version checker',
+  settings_command: 'Command that opens this dashboard',
+  settings_theme: 'Colours',
+  theme_reset: 'Reset colours',
+  settings_economy: 'Buying and selling',
+  settings_purchase_price: 'Default purchase price',
+  settings_purchase_price_hint: 'Applies to stations without a price of their own.',
+  settings_refund: 'Refund on sale',
+  settings_refund_hint: 'Share of the purchase price an owner gets back. 0.6 means 60 percent.',
+  settings_max_balance: 'Company account cap',
+  settings_max_balance_hint: '0 means no limit.',
+  settings_neutral: 'Unowned stations',
+  settings_neutral_hint: 'What happens to the money paid at a station nobody owns.',
+  settings_neutral_mode: 'Handling',
+  settings_neutral_void: 'Disappears',
+  settings_neutral_society: 'Into a society account',
+  settings_neutral_society_name: 'Society account name',
+
+  perms_groups: 'Groups',
+  perms_matrix: 'Permissions',
+  perms_add_group: 'Add group',
+  perms_group_name: 'Group name',
+  perms_dashboard_groups: 'Groups with dashboard access',
+  perms_dashboard_hint:
+    'group.admin always may, group.user never may. A group that is not listed here cannot open the dashboard, even with permissions.',
+  perms_protected: 'This group always holds every permission and cannot be edited.',
+  perms_delete_confirm: 'The group loses every permission on this dashboard.',
+
+  'perm_station.view': 'View stations',
+  'perm_station.create': 'Create stations',
+  'perm_station.edit': 'Edit stations',
+  'perm_station.delete': 'Delete stations',
+  'perm_station.owner': 'Remove owners',
+  'perm_stock.manage': 'Manage stock',
+  'perm_market.manage': 'Manage prices and market',
+  'perm_settings.manage': 'Manage settings',
+  'perm_permissions.manage': 'Manage permissions',
+
+  fuel_gas: 'Gas',
+  fuel_diesel: 'Diesel',
+  fuel_kerosin: 'Kerosin',
+  fuel_electric: 'Electric',
+
+  err_no_permission: 'You do not have permission for that.',
+  err_bad_input: 'The input is incomplete or invalid.',
+  err_bad_id: 'The ID may only contain letters, digits, dash and underscore.',
+  err_bad_coords: 'Those coordinates are invalid.',
+  err_bad_fueltypes: 'Pick at least one fuel type.',
+  err_bad_fueltype: 'Unknown fuel type.',
+  err_not_found: 'That station does not exist (any more).',
+  err_no_tank: 'The station has no tank for that fuel type.',
+  err_bad_group: 'That group name is invalid.',
+  err_protected_group: 'That group cannot be edited.',
+  err_blacklisted_group: 'That group must never hold permissions.',
+  err_no_response: 'The server did not answer.',
+  err_unknown: 'Something went wrong.',
+
+  // Owner dashboard
+  owner_subtitle: 'Your business',
+  tab_overview: 'Overview',
+  tab_finance: 'Finance',
+  tab_prices: 'Prices',
+  tab_stock: 'Stock',
+
+  overview_today: 'Last 24 hours',
+  overview_week: 'Last 7 days',
+  overview_revenue: 'Revenue',
+  overview_liters: 'Liters sold',
+  overview_sales: 'Refuels',
+  overview_rename: 'Rename station',
+  overview_rename_hint: 'The name shows on the map and in the dashboard.',
+  overview_sell: 'Sell this station',
+  overview_sell_confirm:
+    'You are selling the station back to the system. You get %s back plus whatever is on the company account. This cannot be undone.',
+
+  finance_balance: 'Balance',
+  finance_deposit: 'Deposit',
+  finance_withdraw: 'Withdraw',
+  finance_amount: 'Amount',
+  finance_history: 'Transactions',
+  finance_history_empty: 'No transactions yet.',
+  tx_sale: 'Sale',
+  tx_sale_neutral: 'Sale (unowned)',
+  tx_deposit: 'Deposit',
+  tx_withdraw: 'Withdrawal',
+  tx_purchase: 'Station purchase',
+  tx_sold: 'Station sale',
+  tx_sell_payout: 'Payout on sale',
+  tx_owner_cleared: 'Owner removed',
+  tx_petrolcan_buy: 'Petrolcan sold',
+  tx_petrolcan_refill: 'Petrolcan refilled',
+
+  prices_hint:
+    'Dynamic means the price rises as your tank empties or demand goes up. Fixed means your price applies, as long as it stays inside the limits.',
+  prices_base: 'Base price',
+  prices_current: 'Current price',
+  prices_range: 'Allowed',
+
+  stock_hint_owner:
+    'Ordering fuel arrives in a later update. Until then delivery jobs and the admin fill the tanks.',
+
+  err_too_far_away: 'You have to be at the station for that.',
+  err_already_owned: 'That station already belongs to someone.',
+  err_not_purchasable: 'That station is not for sale.',
+  err_no_identifier: 'Your player profile could not be read.',
+  err_not_enough_money: 'You do not have enough money on you.',
+  err_not_enough_balance: 'There is not enough money on the company account.',
+  err_bad_amount: 'Enter an amount greater than zero.',
+  err_bad_label: 'The name has to be between 1 and 60 characters.',
+  err_booking_failed: 'The booking failed.',
+  err_too_fast: 'Give it a second.',
+
+  // Staff
+  tab_staff: 'Staff',
+  tab_ranks: 'Ranks',
+  staff_empty: 'This station has no staff yet.',
+  staff_hire: 'Hire',
+  staff_fire: 'Let go',
+  staff_fire_confirm: 'The employee loses every permission at this station.',
+  staff_online: 'Online',
+  staff_offline: 'Offline',
+  staff_rank: 'Rank',
+  staff_pick_player: 'Pick a player',
+  staff_no_players: 'Nobody is online to hire right now.',
+  staff_already_employed: 'Already works here',
+  staff_earnings: 'Earned',
+  staff_deliveries: 'Deliveries',
+  staff_liters: 'Liters sold',
+  staff_last_active: 'Last active',
+  staff_never: 'Never',
+  staff_stats_hint: 'Deliveries and liters sold start counting with the delivery update.',
+
+  ranks_empty: 'There are no ranks yet.',
+  ranks_new: 'New rank',
+  ranks_id: 'Key',
+  ranks_id_hint: 'Letters, digits, dash and underscore only. Cannot be changed later.',
+  ranks_label: 'Name',
+  ranks_salary: 'Salary per payout',
+  ranks_bonus: 'Bonus per delivery',
+  ranks_perms: 'Permissions',
+  ranks_perms_owner_only: 'Only the owner can hand out permissions.',
+  ranks_delete_confirm: 'The rank is deleted. Move anyone holding it to another rank first.',
+
+  perm_manage: 'Manage and rename the station',
+  perm_hire: 'Manage staff and ranks',
+  perm_set_prices: 'Set prices',
+  perm_order_fuel: 'Order fuel',
+  perm_withdraw: 'Withdraw money',
+  perm_deposit: 'Deposit money',
+  perm_repair: 'Repair pumps',
+
+  err_bad_target: 'That player does not exist (any more).',
+  err_bad_rank: 'That rank does not exist.',
+  err_rank_in_use: 'Someone still holds that rank. Move them first.',
+  err_is_owner: 'The owner cannot hire themselves.',
+  err_not_employed: 'That person does not work here.',
+  err_owner_only: 'Only the owner may do that.',
+
+  // Supply
+  tab_supply: 'Supply',
+  supply_npc: 'NPC driver',
+  supply_npc_locked: 'Without an NPC driver, restocking means driving a delivery run yourself.',
+  supply_npc_unlock: 'Unlock for %s',
+  supply_npc_unlocked: 'Unlocked. Instant restocking is available.',
+  supply_auto: 'Restock automatically',
+  supply_auto_hint: 'Tops the tanks up regularly through the NPC driver, as long as the account holds out.',
+  supply_instant: 'Restock now',
+  supply_instant_hint: 'Arrives instantly, but carries the NPC surcharge.',
+  supply_order: 'Delivery run',
+  supply_order_hint:
+    'Cheaper, but you drive: pick up the rig, head to the depot, load fuel, bring it back.',
+  supply_fuel: 'Fuel type',
+  supply_amount: 'Amount in liters',
+  supply_vehicle: 'Vehicle',
+  supply_free: 'Tank space',
+  supply_cost: 'Cost',
+  supply_start_order: 'Start the run',
+  supply_capacity: 'Carries',
+
+  // Admin: neutral stations
+  tab_neutral: 'Unowned stations',
+  neutral_hint:
+    'These stations belong to nobody. Decide whether players may run deliveries for them and whether they refill themselves.',
+  neutral_none: 'Every station has an owner.',
+  neutral_public: 'Public delivery jobs',
+  neutral_reward: 'Reward per liter',
+  neutral_amount: 'Amount per job',
+  neutral_auto: 'Refills itself',
+
+  err_npc_locked: 'The NPC driver is not unlocked for this station.',
+  err_already_unlocked: 'The NPC driver is already unlocked.',
+  err_tank_full: 'The tank is full.',
+  err_bad_vehicle: 'That delivery vehicle does not exist.',
+  err_no_depot: 'No fuel depot is configured.',
+  err_delivery_running: 'You already have a delivery job.',
+  err_no_public_job: 'This station has no public jobs.',
+  err_station_owned: 'That station has an owner.',
+
+  // Pumps
+  tab_pumps: 'Pumps',
+  pumps_empty: 'Nobody has fueled at a pump here yet.',
+  pumps_hint:
+    'A pump shows up here the first time somebody fuels at it. It wears down with use, fuels slower, and eventually stops working.',
+  pumps_health: 'Condition',
+  pumps_repair: 'Repair',
+  pumps_broken: 'Broken',
+  pumps_worn: 'Worn',
+  pumps_fine: 'Fine',
+  pumps_mechanic: 'Mechanic',
+  pumps_mechanic_hint: 'Repairs worn pumps on their own and bills the company account for it.',
+  pumps_mechanic_unlock: 'Hire for %s',
+  pumps_mechanic_hired: 'Hired. Pumps are kept in shape automatically.',
+  pumps_disabled: 'Maintenance is switched off on this server.',
+
+  err_not_damaged: 'That pump is fine.',
+}
+
+const CATALOGUE: Record<string, typeof de> = { de, en }
+
+export type TranslationKey = keyof typeof de
+
+export function makeT(locale: string) {
+  const dict = CATALOGUE[locale] ?? CATALOGUE.en
+
+  return (key: TranslationKey): string => dict[key] ?? CATALOGUE.en[key] ?? String(key)
+}
+
+/** Turns a server error code into a readable line, unknown codes included. */
+export function errorText(t: (k: TranslationKey) => string, err?: string): string {
+  if (!err) return t('err_unknown')
+
+  const key = `err_${err}` as TranslationKey
+  const text = t(key)
+
+  return text === key ? `${t('err_unknown')} (${err})` : text
+}

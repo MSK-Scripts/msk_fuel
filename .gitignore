@@ -45,5 +45,11 @@ graphify-out/*
 !graphify-out/GRAPH_REPORT.md
 
 # Other files
+.claude/
 CFX_POST.md
 Konzept.md
+
+# NUI build artefacts. `html/` is the built dashboard and IS committed (the
+# server needs no npm), node_modules and the tsc cache are not.
+web/node_modules/
+web/tsconfig.tsbuildinfo
