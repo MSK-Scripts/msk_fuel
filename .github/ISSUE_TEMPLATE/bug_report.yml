@@ -1,0 +1,103 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in MSK Fuel
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill out the fields below so we can reproduce and fix it quickly.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you start
+      options:
+        - label: I am running the latest release of msk_fuel
+          required: true
+        - label: I searched existing issues and this has not been reported yet
+          required: true
+        - label: msk_core, ox_target, ox_inventory and oxmysql are installed and started before msk_fuel
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the bug.
+      placeholder: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce the behavior?
+      placeholder: |
+        1. Drive to a fuel station with '...'
+        2. Grab the nozzle and '...'
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console output / errors
+      description: Paste any relevant server or client console output. This will be rendered as code, no backticks needed.
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: msk_fuel version
+      placeholder: "1.2.0-beta.1"
+    validations:
+      required: true
+  - type: input
+    id: core_version
+    attributes:
+      label: msk_core version
+      placeholder: "3.3.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Framework
+      options:
+        - ESX
+        - QBCore
+        - ox_core
+        - STANDALONE
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part is affected?
+      options:
+        - Refueling / petrolcan
+        - Fuel consumption / engine damage
+        - Fuel business (ownership, pricing, stock, staff)
+        - Supply and delivery jobs
+        - Admin dashboard
+        - NUI
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: vehicle
+    attributes:
+      label: Vehicle model
+      description: If the bug only happens with certain vehicles, name the spawn code.
+      placeholder: "sultan"
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else that might help, such as other resources involved, your artifact version, or changes you made to the config files.

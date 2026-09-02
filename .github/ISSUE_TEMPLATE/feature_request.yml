@@ -1,0 +1,53 @@
+name: Feature Request
+description: Suggest a new feature or improvement for MSK Fuel
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an idea. Please describe what you would like to see and why.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you start
+      options:
+        - label: I searched existing issues and this has not been requested yet
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What problem does this feature solve? Is your request related to a limitation you hit?
+      placeholder: "On my server ..."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe the feature you would like. Example config entries, exports or events are welcome.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part would this touch?
+      options:
+        - Refueling / petrolcan
+        - Fuel consumption / engine damage
+        - Fuel business (ownership, pricing, stock, staff)
+        - Supply and delivery jobs
+        - Admin dashboard
+        - NUI
+        - Not sure
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any alternative solutions or workarounds you have thought about.
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else, such as other resources this should work together with.
