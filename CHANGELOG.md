@@ -5,12 +5,12 @@ All notable changes to **msk_fuel** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.0-beta.1] - 2026-08-29
+## [1.2.0] - 2026-09-06
 
-**Pre-release.** This is the fuel business in full, but it has not been through a
-season of live play yet. The mechanics work; the numbers behind them (prices,
-wear rates, delivery pay) are first drafts and are meant to be tuned on your own
-server. Run it on a test server before it touches a live one.
+Stable release of the fuel business. Same content as the `1.2.0-beta.1`
+pre-release from 2026-08-29, promoted after testing. The numbers behind the
+mechanics (prices, wear rates, delivery pay) are balanced for a normal server,
+so check them against your own economy before going live.
 
 Fuel stations stop being blip coordinates and become businesses: they can be
 bought, staffed, priced, supplied and worn out. Everything a player does with
@@ -125,7 +125,7 @@ fuel are only ever moved by the server.
 ### Changed files
 
 * `fxmanifest.lua`, `config.lua`, `translation.lua`, `.gitignore`,
-  `.github/workflows/release.yml`
+  `.github/workflows/release.yml`, `.github/ISSUE_TEMPLATE/bug_report.yml`
 * `config.business.lua`, `config.stations.lua` (new)
 * `shared/perms.lua` (new)
 * `server/main.lua`, `server/functions.lua`, `server/versionchecker.lua`
@@ -205,6 +205,7 @@ fuel are only ever moved by the server.
 * Default map fuel pumps, custom fuel stations and vehicle based mobile stations.
 * Multi language support (German and English), ox_inventory money integration and a built-in version checker.
 
+[1.2.0]: https://github.com/MSK-Scripts/msk_fuel/releases/tag/v1.2.0
 [1.1.1]: https://github.com/MSK-Scripts/msk_fuel/releases/tag/v1.1.1
 [1.1.0]: https://github.com/MSK-Scripts/msk_fuel/releases/tag/v1.1.0
 [1.0.0]: https://github.com/MSK-Scripts/msk_fuel/releases/tag/v1.0.0
