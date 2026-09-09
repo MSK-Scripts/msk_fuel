@@ -5,6 +5,46 @@ All notable changes to **msk_fuel** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-09-09
+
+Dashboard access now works the same on every framework.
+
+### Requires
+
+* **msk_core 4.0.0 or newer.** This release reads the player through the
+  rewritten bridge. On msk_core 3.x the group lookup returns nothing, and
+  dashboard access then depends entirely on your ACE setup. Update msk_core
+  along with this script.
+
+### Changed
+
+* **The framework group is read on QBCore and Qbox too.** Group membership means
+  "ACE principal OR framework group", and the framework half only ever worked on
+  ESX. It went through `xPlayer.getGroup()`, a method QBCore and Qbox do not
+  have, so an admin without the matching `add_principal` line was refused there.
+  `player.group` is a plain string on all three frameworks since msk_core 4.0.0:
+  ESX hands over what it stores, QBCore and Qbox reduce their permission table to
+  the highest level they find.
+* `MSK.GetPlayer` is called with the server id instead of a `{source = }` table,
+  which is what msk_core 4.0.0 expects.
+
+### Fixed
+
+* **The QBCore-only fallback ran on every framework.** `GetQbPermission` starts
+  with a check that leaves the function unless QBCore is running, and that check
+  could never pass: in a consumer resource `MSK.Bridge` used to resolve to a
+  function, so reading `MSK.Bridge.Framework` raised
+  `attempt to index a function value` instead of returning. msk_core 4.0.0 makes
+  `MSK.Bridge` a real table, so the branch now does what it says. On Qbox the
+  same information already arrives through the framework group.
+
+### Changed files
+
+```text
+fxmanifest.lua
+server/admin/permissions.lua
+```
+
 ## [1.2.0] - 2026-09-06
 
 Stable release of the fuel business. Same content as the `1.2.0-beta.1`

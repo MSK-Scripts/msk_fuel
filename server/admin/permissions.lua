@@ -4,27 +4,23 @@ AdminPerms = AdminPerms or {}
 local cache = {}          -- [src] = { perms = {...}, at = ms }
 local CACHE_TTL = 5000    -- ms
 
--- ESX groups are not always mirrored into FiveM's ACE system: the group lives in
--- the framework's `users` table (e.g. group = 'admin') with no matching
+-- Framework groups are not always mirrored into FiveM's ACE system: on ESX the
+-- group lives in the `users` table (e.g. group = 'admin') with no matching
 -- `add_principal ... group.admin` in the server.cfg. So the framework group is
 -- resolved too and membership means "ACE principal OR framework group".
 --
--- This only ever fires on ESX. The msk_core ESX bridge enriches the real xPlayer
--- object, so getGroup()/group survive. The QBCore bridge returns a wrapper built
--- around PlayerData which carries no group at all, so it stays nil there and
--- GetQbPermission() plus the qbcore.* aces cover QBCore instead.
+-- Since msk_core 4.0.0 this works on every framework. `player.group` is a plain
+-- string there: ESX hands over what it stores, QBCore and Qbox reduce their
+-- permission table to the highest level they find. Before 4.0.0 only the ESX
+-- branch carried a group at all, and it was read through getGroup(), a method
+-- that no longer exists because the player object is no longer the raw xPlayer.
 function AdminPerms.GetFrameworkGroup(src)
     if not MSK.GetPlayer then return nil end
 
-    local ok, xPlayer = pcall(MSK.GetPlayer, { source = src })
-    if not ok or not xPlayer then return nil end
+    local ok, player = pcall(MSK.GetPlayer, src)
+    if not ok or type(player) ~= 'table' then return nil end
 
-    if type(xPlayer.getGroup) == 'function' then
-        local g = xPlayer.getGroup()
-        if g then return tostring(g):lower() end
-    end
-
-    if xPlayer.group then return tostring(xPlayer.group):lower() end
+    if player.group then return tostring(player.group):lower() end
 
     return nil
 end
@@ -34,6 +30,12 @@ end
 -- resort for servers whose server.cfg omits the
 -- qbcore.god -> qbcore.admin -> qbcore.mod inheritance chain, where a god would
 -- otherwise not count as an admin.
+--
+-- Only QBCore needs this. On Qbox the same information already arrives through
+-- GetFrameworkGroup above, and the early return below now actually works: in a
+-- consumer MSK.Bridge used to resolve to a function, so reading
+-- MSK.Bridge.Framework raised "attempt to index a function value" rather than
+-- leaving this branch.
 function AdminPerms.GetQbPermission(src, group)
     if MSK.Bridge and MSK.Bridge.Framework and MSK.Bridge.Framework.Type ~= 'QBCore' then return false end
 
