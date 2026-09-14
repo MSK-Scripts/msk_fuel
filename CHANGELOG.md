@@ -5,6 +5,30 @@ All notable changes to **msk_fuel** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-09-14
+
+Uses the table forms that msk_core 4.1.0 introduced, so the deprecation warnings in the server console are gone.
+
+### Requires
+
+* **msk_core 4.1.0 or newer.** The notifications are sent as a table, which an older msk_core takes as the title. Update msk_core along with this script.
+
+### Added
+
+* **The msk_core version is checked on start.** `MSK.Check.Dependency('msk_core', '4.1.0', true)` logs an error in the server console when msk_core is older, instead of leaving you to wonder why the notifications look wrong. *(server/versionchecker.lua)*
+
+### Changed
+
+* **`Config.Notification` passes a table to `MSK.Notification`.** The form with title, message, type and duration is deprecated since msk_core 4.1.0 and logs a warning once per resource. If you keep your own config, change the two `MSK.Notification` lines the same way. Leaving them works too, the old form is still accepted for now. *(config.lua)*
+
+### Changed files
+
+```text
+fxmanifest.lua
+config.lua
+server/versionchecker.lua
+```
+
 ## [1.3.0] - 2026-09-09
 
 Dashboard access now works the same on every framework.
