@@ -5,16 +5,35 @@ State.FuelStation = {}
 
 State.Vehicle.Set = function(vehicle, stateName, value)
     assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')
-    Entity(vehicle).state:set(stateName, value, true)
+    Entity(vehicle).state:set(stateName, value, false)
 
     if stateName == 'fuel' then
-        SetVehicleFuel(vehicle, value)
+        SetVehicleFuelLevel(vehicle, value)
     end
 
     if stateName == 'maxFuel' then
-        SetVehicleMaxFuel(vehicle, value)
+        SetVehicleHandlingFloat(vehicle, 'CHandlingData', 'fPetrolTankVolume', value)
+    end
+
+    if NetworkGetEntityIsNetworked(vehicle) then
+        TriggerServerEvent('msk_fuel:setVehicleState', NetworkGetNetworkIdFromEntity(vehicle), stateName, value)
     end
 end
+
+RegisterNetEvent('msk_fuel:syncVehicleState', function(netId)
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if not DoesEntityExist(vehicle) or not NetworkHasControlOfEntity(vehicle) then return end
+
+    local state = Entity(vehicle).state
+    for _, key in ipairs({'fuel', 'maxFuel', 'fuelType', 'consumFuel', 'engineFailure',
+        'isFueling', 'nozzleAttached', 'isFuelingType', 'isFuelingTypeValue'}) do
+        local value = state[key]
+        if value ~= nil then
+            if key == 'fuel' then value = math.min(value, GetVehicleFuelLevel(vehicle)) end
+            TriggerServerEvent('msk_fuel:setVehicleState', netId, key, value)
+        end
+    end
+end)
 
 State.Vehicle.Get = function(vehicle, stateName)
     assert(vehicle and DoesEntityExist(vehicle), 'Parameter "vehicle" is nil or the Vehicle does not exist')

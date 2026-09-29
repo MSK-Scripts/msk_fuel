@@ -106,6 +106,14 @@ exports.msk_fuel:GetVehicleFuel(netId)
 exports.msk_fuel:SetVehicleFuel(netId, fuel)
 ```
 
+Client setters update the local vehicle immediately, including with
+`sv_stateBagStrictMode` enabled. The server replicates supported state changes
+from the vehicle's network owner. Local vehicles keep their state locally.
+
+Use the **server** `SetVehicleFuel` export for refills and admin changes. Client
+fuel reports can initialize a vehicle or decrease its existing fuel level;
+they cannot raise a level already recorded by the server.
+
 ## Configuration
 
 All settings are located in:
