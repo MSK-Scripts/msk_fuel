@@ -73,6 +73,62 @@ GetVehicleFuel = function(netId)
 end
 exports('GetVehicleFuel', GetVehicleFuel)
 
+local VehicleStateTypes = {
+    fuel = 'number', maxFuel = 'number', fuelType = 'string', consumFuel = 'boolean',
+    engineFailure = 'boolean', isFueling = 'boolean', nozzleAttached = 'boolean',
+    isFuelingType = 'string', isFuelingTypeValue = 'number',
+}
+local FuelTypes = { gas = true, diesel = true, kerosin = true, electric = true }
+local PendingVehicles = {}
+
+RegisterNetEvent('msk_fuel:setVehicleState', function(netId, key, value)
+    local playerId = source
+    if type(netId) ~= 'number' or netId % 1 ~= 0 or netId <= 0 or netId > 65535 then return end
+    if not VehicleStateTypes[key] then return end
+    if value ~= nil and type(value) ~= VehicleStateTypes[key] then return end
+    if type(value) == 'number' and not (value >= 0 and value < math.huge) then return end
+    if key == 'fuel' and value == nil then return end
+    if key == 'maxFuel' and (value == nil or value <= 0) then return end
+    if key == 'fuelType' and not FuelTypes[value] then return end
+    if key == 'isFuelingType' and value ~= nil and not FuelTypes[value] then return end
+
+    -- A client export can run before the spawn reaches the server. Only remember
+    -- the ID; ask the actual owner for fresh state once the entity is created.
+    if NetworkGetEntityFromNetworkId(netId) == 0 then
+        PendingVehicles[netId] = true
+        return
+    end
+    local vehicle = GetVehicleFromNetId(netId)
+    if not vehicle or NetworkGetEntityOwner(vehicle) ~= playerId then return end
+
+    if key == 'fuel' then
+        local authorized = AuthorizedFuel[vehicle] or Entity(vehicle).state.fuel
+        if authorized and value > authorized + FUEL_JITTER then
+            TriggerClientEvent('msk_fuel:setVehicleFuel', playerId, netId, authorized)
+            return
+        end
+        -- Owners report consumption; refills still go through the server export.
+        AuthorizedFuel[vehicle] = authorized and math.min(value, authorized) or value
+        Entity(vehicle).state:set('fuel', AuthorizedFuel[vehicle], true)
+        return
+    end
+
+    Entity(vehicle).state:set(key, value, true)
+end)
+
+AddEventHandler('entityCreated', function(entity)
+    if not DoesEntityExist(entity) then return end
+    local netId = NetworkGetNetworkIdFromEntity(entity)
+    if not PendingVehicles[netId] then return end
+    PendingVehicles[netId] = nil
+    if GetEntityType(entity) ~= 2 then return end
+
+    local owner = NetworkGetEntityOwner(entity)
+    if owner > 0 then
+        TriggerClientEvent('msk_fuel:syncVehicleState', owner, netId)
+    end
+end)
+
 AddStateBagChangeHandler('fuel', nil, function(bagName, key, value, reserved, replicated)
     local vehicle = GetEntityFromStateBagName(bagName)
     if vehicle == 0 or GetEntityType(vehicle) ~= 2 then return end

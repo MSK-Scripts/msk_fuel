@@ -196,7 +196,8 @@ RegisterNetEvent('msk_fuel:setVehicleFuel', function(netId, fuel)
     local vehicle = NetworkGetEntityFromNetworkId(netId)
     if not DoesEntityExist(vehicle) then return end
 
-    SetVehicleFuel(vehicle, fuel)
+    Entity(vehicle).state:set('fuel', fuel, false)
+    SetVehicleFuelLevel(vehicle, fuel)
 end)
 
 RegisterNetEvent('msk_fuel:setVehicleRepaired', function(netId, fuel)
@@ -216,26 +217,21 @@ AddStateBagChangeHandler("fuel", nil, function(bagName, key, value, reserved, re
     local entity = GetEntityFromStateBagName(bagName)
     if not IsEntityAVehicle(entity) then return end
 
-	local invoke = GetInvokingResource()
-	if not invoke or invoke == 'msk_fuel' then return end
-
-	-- Never trust replicated statebag values, validate and clamp them
-	if type(value) ~= 'number' then return end
-	local maxFuel = GetVehicleMaxFuel(entity)
-	value = math.max(0.0, math.min(value + 0.0, maxFuel))
-
-	SetVehicleFuel(entity, value)
+	-- Apply incoming state without sending it back to the server.
+	if type(value) ~= 'number' or not (value >= 0 and value < math.huge) then return end
+	if NetworkHasControlOfEntity(entity) then
+		-- An acknowledgement must not restore fuel burned during the round trip.
+		value = math.min(value, GetVehicleFuelLevel(entity))
+	end
+	SetVehicleFuelLevel(entity, value + 0.0)
 end)
 
 AddStateBagChangeHandler("maxFuel", nil, function(bagName, key, value, reserved, replicated)
     local entity = GetEntityFromStateBagName(bagName)
     if not IsEntityAVehicle(entity) then return end
 
-	local invoke = GetInvokingResource()
-	if not invoke or invoke == 'msk_fuel' then return end
-
 	-- Never trust replicated statebag values, validate them
-	if type(value) ~= 'number' or value <= 0 then return end
+	if type(value) ~= 'number' or not (value > 0 and value < math.huge) then return end
 
-	SetVehicleMaxFuel(entity, value)
+	SetVehicleHandlingFloat(entity, 'CHandlingData', 'fPetrolTankVolume', value + 0.0)
 end)

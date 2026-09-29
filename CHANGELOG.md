@@ -5,6 +5,12 @@ All notable changes to **msk_fuel** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+* Vehicle fuel and related state now synchronize with `sv_stateBagStrictMode` enabled. Client exports still apply immediately; accepted updates are replicated by the server without echoing consumption back to the owner.
+
 ## [1.3.1] - 2026-09-14
 
 Uses the table forms that msk_core 4.1.0 introduced, so the deprecation warnings in the server console are gone.
